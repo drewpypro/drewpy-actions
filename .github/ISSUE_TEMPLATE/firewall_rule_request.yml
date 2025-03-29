@@ -1,0 +1,13 @@
+name: Firewall Rule Request
+description: Request addition or modification of firewall rules
+title: "[Firewall Rule Request]: <Brief description>"
+body:
+  - type: textarea
+    attributes:
+      label: Firewall Rules CSV
+      description: "Enter firewall rules in CSV format:"
+      placeholder: |
+        RequestID,name,security_group_id,direction,from_port,to_port,ip_protocol,referenced_security_group_id,cidr_ipv4,cidr_ipv6,prefix_list_id,business_justification
+        Request00001,autoscaling,autoscaling,ingress,443,443,tcp,worker_nodes,null,null,null,Business justification...
+    validations:
+      required: true

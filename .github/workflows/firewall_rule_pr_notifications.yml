@@ -1,0 +1,18 @@
+name: Firewall Rule PR Notifications
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  discord_notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
+            $DISCORD_WEBHOOK

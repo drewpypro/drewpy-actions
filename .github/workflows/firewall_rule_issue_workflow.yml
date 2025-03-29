@@ -1,0 +1,54 @@
+name: Firewall Rule Issue Workflow
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  process_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract CSV from Issue
+        id: extract_csv
+        run: |
+          echo "${{ github.event.issue.body }}" > issue_body.txt
+
+          # Extract only CSV content from the issue body (ignores markdown)
+          sed -n '/RequestID,name,security_group_id/,$p' issue_body.txt > new_rule.csv
+
+          # Verify extracted content (optional debug)
+          cat new_rule.csv
+
+      - name: Append to firewall_rules.csv
+        run: |
+          # Remove header from new_rule.csv before appending
+          tail -n +2 new_rule.csv >> firewall_rules.csv
+
+      - name: Create branch and commit
+        run: |
+          BRANCH_NAME="firewall-rule-${{ github.event.issue.number }}"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git checkout -b $BRANCH_NAME
+          git add firewall_rules.csv
+          git commit -m "Add firewall rule from issue #${{ github.event.issue.number }}"
+          git push -u origin $BRANCH_NAME
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: firewall-rule-${{ github.event.issue.number }}
+          title: "Firewall Rule Request from Issue #${{ github.event.issue.number }}"
+          body: |
+            This PR was automatically generated from issue #${{ github.event.issue.number }}.
+
+            Please review and merge.
+          reviewers: drewpy
