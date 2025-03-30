@@ -21,7 +21,17 @@ jobs:
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' | sed '/^\s*$/d' | tail -n +2 >> firewall_rules.csv
+          # Extract the rule lines, skip blank, remove header
+          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' \
+            | sed '/^\s*$/d' \
+            | tail -n +2 > appended.csv
+
+          # Ensure firewall_rules.csv ends with a newline before appending
+          tail -c1 firewall_rules.csv | read -r _ || echo >> firewall_rules.csv
+
+          # Append cleanly
+          cat appended.csv >> firewall_rules.csv
+          rm appended.csv
 
       - name: Run Validation and Comment on Issue
         id: run_validation
