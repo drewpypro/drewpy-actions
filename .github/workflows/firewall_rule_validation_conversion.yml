@@ -2,7 +2,7 @@ name: Firewall Rule Validation and Conversion
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened]
 
 jobs:
   validate:
@@ -39,7 +39,7 @@ jobs:
           git add sg_rules/*.json rule_count.txt
           git commit -m "Update JSON rules after CSV conversion" || echo "No changes to commit"
           git push
-          
+
   discord_notification:
       runs-on: ubuntu-latest
       steps:
