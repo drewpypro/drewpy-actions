@@ -11,26 +11,36 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Extract CSV, Append and Create PR
+      - name: Extract CSV, append and commit changes
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          # Extract CSV from issue body
+          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
+          tail -n +2 new_rule.csv >> firewall_rules.csv
+          rm new_rule.csv
+
+          # Commit changes explicitly
+          BRANCH_NAME="firewall-rule-${{ github.event.issue.number }}"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git checkout -b $BRANCH_NAME
+          git add firewall_rules.csv
+          git commit -m "Add firewall rule from issue #${{ github.event.issue.number }}"
+          git push -u origin $BRANCH_NAME
+
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
-        with: 
-          token:  ${{ secrets.PAT_GITHUB_ACTIONS }}
+        with:
+          token: ${{ secrets.PAT_GITHUB_ACTIONS }}
           branch: firewall-rule-${{ github.event.issue.number }}
           base: main
-          commit-message: "Add firewall rule from issue #${{ github.event.issue.number }}"
           title: "Firewall Rule Request from Issue #${{ github.event.issue.number }}"
           body: |
             This PR was automatically generated from issue #${{ github.event.issue.number }}.
             Please review and merge.
-          # This step below is CRITICAL for adding/modifying the file before PR creation
-          add-paths: firewall_rules.csv
-        env:
-          ISSUE_BODY: ${{ github.event.issue.body }}
-        run: |
-          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
-          tail -n +2 new_rule.csv >> firewall_rules.csv
-          rm new_rule.csv
