@@ -46,9 +46,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: firewall-rule-${{ github.event.issue.number }}
+          base: main
           title: "Firewall Rule Request from Issue #${{ github.event.issue.number }}"
           body: |
             This PR was automatically generated from issue #${{ github.event.issue.number }}.
 
             Please review and merge.
-          reviewers: drewpy
+          reviewers: drewpypro
+          

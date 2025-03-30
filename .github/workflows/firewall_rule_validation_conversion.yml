@@ -1,0 +1,39 @@
+name: Firewall Rule Validation and Conversion
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firewall_rules.csv'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Firewall Rules CSV
+        uses: ./rule_validation
+        with:
+          input-file: firewall_rules.csv
+
+  convert:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Convert Firewall Rules CSV to JSON
+        uses: ./rule_conversion
+        with:
+          input-file: firewall_rules.csv
+      
+      - name: Commit JSON Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add sg_rules/*.json rule_count.txt
+          git commit -m "Update JSON rules after CSV conversion" || echo "No changes to commit"
+          git push
