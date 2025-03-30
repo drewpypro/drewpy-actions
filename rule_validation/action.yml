@@ -24,9 +24,10 @@ runs:
       id: run_validation
       run: |
         set -o pipefail
-        python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt || true
+        python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt
         cat validation_output.txt
         echo "result<<EOF" >> $GITHUB_OUTPUT
         cat validation_output.txt >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
+        grep -q "Error:" validation_output.txt && exit 1
       shell: bash
