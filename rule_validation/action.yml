@@ -4,6 +4,10 @@ inputs:
   input-file:
     description: "Path to the firewall_rules.csv"
     required: true
+outputs:
+  result:
+    description: "Validation result output"
+    value: ${{ steps.run_validation.outputs.result }}
 runs:
   using: "composite"
   steps:
@@ -17,6 +21,13 @@ runs:
       shell: bash
 
     - name: Run validation script
+      id: run_validation
       run: |
-        python ${{ github.action_path }}/validate.py --input-file ${{ inputs.input-file }}
+        set -o pipefail
+        python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt || true
+        cat validation_output.txt
+        echo "result<<EOF" >> $GITHUB_OUTPUT
+        cat validation_output.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        grep -q "Error:" validation_output.txt && exit 1
       shell: bash

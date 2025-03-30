@@ -30,6 +30,16 @@ jobs:
         with:
           input-file: firewall_rules.csv
 
+      - name: Comment on Issue if Validation Fails
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        if: failure()
+        run: |
+          ERROR_MSG="${{ steps.run_validation.outputs.result }}"
+          gh issue comment ${{ github.event.issue.number }} --body "Validation failed:\n\n\`\`\`\n$ERROR_MSG\n\`\`\`"
+          gh issue edit ${{ github.event.issue.number }} --add-label "needs-fix"
+
+
       - name: Commit Changes and Create PR
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
@@ -48,10 +58,7 @@ jobs:
             --base main \
             --head $BRANCH_NAME
             
-  message_webhook:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Notify messaging webhook
+      - name: Notify messaging webhook
           id: message_webhook
           env:
             MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}

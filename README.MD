@@ -34,3 +34,13 @@ drewpy-actions/
 4. PR workflow
     * PR is created.
     * Discord is notified. 
+
+
+```
+📁 .github/workflows
+├── firewall_rule_issue_open.yml            # Handles new issue submissions
+├── firewall_rule_pr_validation.yml         # Validates firewall_rules.csv on PR creation
+├── firewall_rule_issue_feedback.yml        # Adds issue comment if validation fails
+├── firewall_rule_pr_close.yml              # Handles PR close (merge or reject)
+├── firewall_rule_branch_cleanup.yml        # Deletes branches after PR is closed/merged
+```
