@@ -21,10 +21,10 @@
 - ssmmessages : 2 rules
 - sts : 2 rules
 - vpce_ec2 : 1 rules
-- worker_nodes : 39 rules
+- worker_nodes : 45 rules
 
 ## Egress Rules:
 - cluster_endpoint : 6 rules
 - internet_nlb : 2 rules
 - istio_nodes : 83 rules
-- worker_nodes : 89 rules
+- worker_nodes : 91 rules
