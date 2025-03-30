@@ -16,7 +16,7 @@ jobs:
       - name: Close and Comment on Related Issue
         if: github.event.pull_request.merged == true
         env:
-          PAT_GITHUB_ACTIONS : ${{ secrets.PAT_GITHUB_ACTIONS }}
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
           ISSUE_NUMBER=$(echo "${{ github.event.pull_request.head.ref }}" | grep -o '[0-9]*$')
-          gh issue close $ISSUE_NUMBER -c "This issue was automatically closed as the PR (#${{ github.event.pull_request.number }}) has been merged."
+          gh issue close "$ISSUE_NUMBER" --comment "This issue was automatically closed as the PR (#${{ github.event.pull_request.number }}) has been merged."
