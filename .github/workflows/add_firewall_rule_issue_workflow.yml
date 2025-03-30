@@ -16,17 +16,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Extract CSV, append, commit changes, and create PR
+      - name: Extract CSV and Append to firewall_rules.csv
+        id: extract_and_append
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
-          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
-          # Extract CSV from issue body
           echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
           tail -n +2 new_rule.csv >> firewall_rules.csv
           rm new_rule.csv
 
-          # Commit changes explicitly
+      - name: Run Validation
+        uses: ./rule_validation
+        with:
+          input-file: firewall_rules.csv
+
+      - name: Commit Changes and Create PR
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
           BRANCH_NAME="firewall-rule-${{ github.event.issue.number }}"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -35,9 +42,16 @@ jobs:
           git commit -m "Add firewall rule from issue #${{ github.event.issue.number }}"
           git push -u origin $BRANCH_NAME
 
-          # Create Pull Request using official GitHub CLI
           gh pr create \
             --title "Firewall Rule Request from Issue #${{ github.event.issue.number }}" \
             --body "This PR was automatically generated from issue #${{ github.event.issue.number }}.\n\nPlease review and merge." \
             --base main \
             --head $BRANCH_NAME
+      - name: Notify Discord
+          env:
+            MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
+          run: |
+            curl -H "Content-Type: application/json" \
+              -X POST \
+              -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
+              $MESSAGE_WEBHOOK

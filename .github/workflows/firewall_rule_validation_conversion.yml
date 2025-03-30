@@ -39,15 +39,3 @@ jobs:
           git add sg_rules/*.json rule_count.txt
           git commit -m "Update JSON rules after CSV conversion" || echo "No changes to commit"
           git push
-
-  discord_notification:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Notify Discord
-          env:
-            MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
-          run: |
-            curl -H "Content-Type: application/json" \
-              -X POST \
-              -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
-              $MESSAGE_WEBHOOK
