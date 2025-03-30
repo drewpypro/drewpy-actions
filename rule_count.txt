@@ -26,4 +26,4 @@
 - cluster_endpoint : 6 rules
 - internet_nlb : 2 rules
 - istio_nodes : 83 rules
-- worker_nodes : 89 rules
+- worker_nodes : 91 rules
