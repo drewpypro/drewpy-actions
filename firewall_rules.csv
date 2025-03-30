@@ -324,3 +324,11 @@ Request00001,worker_nodes,worker_nodes,egress,0,0,-1,worker_nodes,null,null,null
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,null,null,s3,Allow worker to s3 prefixes
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,null,null,dynamodb,Allow worker to s3 prefixes
 Request00001,vpce_ec2,vpce_ec2,ingress,553,7070,tcp,worker_nodes,null,null,null,this is my business justification again
+Request00001,worker_nodes,worker_nodes,egress,0,255,icmp,ec2_test_sg,null,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,egress,69,69,udp,null,null,null,s3,Allow access to s3 for infrastructure build
+Request00001,worker_nodes,worker_nodes,ingress,69,69,udp,ec2_test_sg,null,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,69,69,tcp,ec2_test_sg,null,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,69,69,udp,null,192.168.1.1/32,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,69,69,udp,null,null,6969:6969:6969:6969:6969:6969:6969:6969/128,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,69,69,udp,null,null,null,s3,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,0,0,-1,null,null,null,dynamodb,Allow Type 0 Code 0 (echo-Reply)
