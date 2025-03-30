@@ -334,3 +334,5 @@ Request00001,autoscaling,autoscaling,ingress,55,5555,tcp,worker_nodes,null,null,
 
 Request00001,autoscaling,autoscaling,ingress,22,25,tcp,worker_nodes,null,null,null,this is my business justification again
 
+Request00001,worker_nodes,worker_nodes,egress,0,255,icmp,ec2_test_sg,null,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,egress,0,255,icmp,ec2_test_sg,null,null,null,Allow Type 0 Code 0 (echo-Reply)
