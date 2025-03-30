@@ -12,14 +12,18 @@ jobs:
       pull-requests: write
       issues: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Extract CSV and Append
+        id: extract_csv
         run: |
           echo "${{ github.event.issue.body }}" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
+          echo "Contents of new_rule.csv:"
+          cat new_rule.csv
           tail -n +2 new_rule.csv >> firewall_rules.csv
           rm new_rule.csv
-
+          
       - name: Create branch and commit
         run: |
           BRANCH_NAME="firewall-rule-${{ github.event.issue.number }}"
@@ -39,4 +43,6 @@ jobs:
           title: "Firewall Rule Request from Issue #${{ github.event.issue.number }}"
           body: |
             This PR was automatically generated from issue #${{ github.event.issue.number }}.
+
             Please review and merge.
+
