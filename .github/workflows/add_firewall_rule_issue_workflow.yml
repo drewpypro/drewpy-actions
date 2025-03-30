@@ -59,11 +59,11 @@ jobs:
             --head $BRANCH_NAME
             
       - name: Notify messaging webhook
-          id: message_webhook
-          env:
+        id: message_webhook
+        env:
             MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
-          run: |
-            curl -H "Content-Type: application/json" \
-              -X POST \
-              -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
-              $MESSAGE_WEBHOOK
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
+            $MESSAGE_WEBHOOK
