@@ -30,6 +30,8 @@ jobs:
         run: |
           # Remove header from new_rule.csv before appending
           tail -n +2 new_rule.csv >> firewall_rules.csv
+          rm -f issue_body.txt
+          rm -f new_rule.csv
 
       - name: Create branch and commit
         run: |
