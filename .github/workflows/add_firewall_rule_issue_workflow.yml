@@ -21,9 +21,7 @@ jobs:
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
-          tail -n +2 new_rule.csv >> firewall_rules.csv
-          rm new_rule.csv
+          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' | sed '/^\s*$/d' | tail -n +2 >> firewall_rules.csv
 
       - name: Run Validation and Comment on Issue
         id: run_validation
