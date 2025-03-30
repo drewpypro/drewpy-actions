@@ -12,6 +12,9 @@ jobs:
       contents: write
     steps:
       - name: Comment and Update Related Issue
+      - uses: actions/checkout@v4
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
           ISSUE_NUMBER=$(echo "${{ github.event.pull_request.head.ref }}" | grep -o '[0-9]*')
           BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
@@ -27,5 +30,3 @@ jobs:
           if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "master" ]]; then
             git push origin --delete "$BRANCH_NAME"
           fi
-        env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
