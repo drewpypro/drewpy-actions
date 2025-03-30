@@ -47,11 +47,12 @@ jobs:
             --body "This PR was automatically generated from issue #${{ github.event.issue.number }}.\n\nPlease review and merge." \
             --base main \
             --head $BRANCH_NAME
+
       - name: Notify Discord
-          env:
-            MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
-          run: |
-            curl -H "Content-Type: application/json" \
-              -X POST \
-              -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
-              $MESSAGE_WEBHOOK
+        env:
+          MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
+            $MESSAGE_WEBHOOK
