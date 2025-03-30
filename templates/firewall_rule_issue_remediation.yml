@@ -1,0 +1,40 @@
+name: Auto-Label and Close Stale Issues
+
+on:
+  schedule:
+    - cron: "*/60 * * * *"
+  workflow_dispatch:
+
+jobs:
+  close_stale_issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Label and close stale issues
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
+          NOW=$(date -u +%s)
+
+          for LABEL in "rejected" "needs-fix"; do
+            gh issue list --label "$LABEL" --state open --json number,createdAt,title \
+            | jq -c '.[]' \
+            | while read -r issue; do
+                NUMBER=$(echo "$issue" | jq -r '.number')
+                CREATED=$(echo "$issue" | jq -r '.createdAt')
+                CREATED_TS=$(date -d "$CREATED" +%s)
+                AGE_MINUTES=$(( (NOW - CREATED_TS) / 60 ))
+
+                if [ "$AGE_MINUTES" -ge 15 ]; then
+                  echo "Closing stale issue #$NUMBER (created $AGE_MINUTES minutes ago)"
+                  gh issue edit "$NUMBER" --add-label "stale"
+                  gh issue comment "$NUMBER" --body "⚠️ This issue was automatically closed after being labeled \`$LABEL\` for more than 15 minutes without activity. Marked as \`stale\`. Please create a new request if still needed."
+                  gh issue close "$NUMBER"
+                fi
+              done
+          done

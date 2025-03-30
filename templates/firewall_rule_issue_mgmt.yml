@@ -1,0 +1,39 @@
+name: Handle Closed PR for Firewall Rules
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  handle_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Comment and Update Related Issue
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
+          ISSUE_NUMBER=$(echo "${{ github.event.pull_request.head.ref }}" | grep -o '[0-9]*')
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+
+          if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            gh issue comment "$ISSUE_NUMBER" --body "This issue was automatically closed because the PR #${{ github.event.pull_request.number }} was merged."
+            gh issue close "$ISSUE_NUMBER"
+            gh issue edit "$ISSUE_NUMBER" --add-label "completed"
+            gh issue edit "$ISSUE_NUMBER" --remove-label "pending-review" || true
+            gh issue edit "$ISSUE_NUMBER" --remove-label "needs-fix" || true
+          else
+            gh issue comment "$ISSUE_NUMBER" --body "The PR #${{ github.event.pull_request.number }} was closed without merging. Please resubmit by editing the issue or opening a new one."
+            gh issue edit "$ISSUE_NUMBER" --add-label "rejected"
+            gh issue edit "$ISSUE_NUMBER" --remove-label "pending-review" || true
+          fi
+
+          # Always try to delete branch if not main
+          if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "master" ]]; then
+            git push origin --delete "$BRANCH_NAME"
+          fi

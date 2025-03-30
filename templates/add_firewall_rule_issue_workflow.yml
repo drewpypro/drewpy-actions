@@ -1,0 +1,94 @@
+name: Firewall Rule Issue Workflow
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  validate_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract CSV and Append to firewall_rules.csv
+        id: extract_and_append
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          # Extract the rule lines, skip blank, remove header
+          echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' \
+            | sed '/^\s*$/d' \
+            | tail -n +2 > appended.csv
+
+          # Ensure firewall_rules.csv ends with a newline before appending
+          tail -c1 firewall_rules.csv | read -r _ || echo >> firewall_rules.csv
+
+          # Append cleanly
+          cat appended.csv >> firewall_rules.csv
+          rm appended.csv
+
+      - name: Run Validation and Comment on Issue
+        id: run_validation
+        uses: drewpypro/drewpy-actions/.github/rule_validation@main
+        with:
+          input-file: firewall_rules.csv
+        continue-on-error: true
+
+      - name: Post Validation Output to Issue
+        id: comment_validation_output
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
+          echo "📋 **Validation output**:" > comment.txt
+          echo '```' >> comment.txt
+          echo "${{ steps.run_validation.outputs.result }}" >> comment.txt
+          echo '```' >> comment.txt
+
+          cat comment.txt
+
+          gh issue comment ${{ github.event.issue.number }} --body-file comment.txt
+
+          if grep -q "Error:" comment.txt; then
+            echo "Validation failed, labeling issue and stopping"
+            gh issue edit ${{ github.event.issue.number }} --add-label "needs-fix"
+            exit 1
+          fi
+
+      - name: Commit Changes and Create PR
+        id: create_pr
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
+          BRANCH_NAME="firewall-rule-${{ github.event.issue.number }}"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git checkout -b $BRANCH_NAME
+          git add firewall_rules.csv
+          git commit -m "Add firewall rule from issue #${{ github.event.issue.number }}"
+          git push -u origin $BRANCH_NAME
+
+          PR_URL=$(gh pr create \
+            --title "Firewall Rule Request from Issue #${{ github.event.issue.number }}" \
+            --body "This PR was automatically generated from issue #${{ github.event.issue.number }}.\n\nPlease review and merge." \
+            --base main \
+            --head $BRANCH_NAME)
+
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+          gh issue edit ${{ github.event.issue.number }} --add-label "pending-review"
+            
+      - name: Notify messaging webhook
+        id: message_webhook
+        env:
+            MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\":\"New PR Created: ${{ steps.create_pr.outputs.pr_url }}\"}" \
+            $MESSAGE_WEBHOOK
