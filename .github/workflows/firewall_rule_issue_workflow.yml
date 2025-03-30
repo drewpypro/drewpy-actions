@@ -18,10 +18,23 @@ jobs:
       - name: Extract CSV and Append
         id: extract_csv
         run: |
+          # Extract CSV from issue body
           echo "${{ github.event.issue.body }}" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
-          echo "Contents of new_rule.csv:"
+          
+          echo "--- new_rule.csv ---"
           cat new_rule.csv
+          echo "--------------------"
+          
+          # Ensure firewall_rules.csv ends with a newline before appending
+          sed -i -e '$a\' firewall_rules.csv
+          
+          # Append rule (skip CSV header line)
           tail -n +2 new_rule.csv >> firewall_rules.csv
+          
+          echo "--- firewall_rules.csv after append ---"
+          cat firewall_rules.csv
+          echo "---------------------------------------"
+      
           rm new_rule.csv
           
       - name: Create branch and commit
