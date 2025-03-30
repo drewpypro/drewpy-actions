@@ -1,7 +1,7 @@
 # Security Group Rule Count:
 
 ## Ingress Rules:
-- autoscaling : 9 rules
+- autoscaling : 10 rules
 - cluster_endpoint : 4 rules
 - dms : 2 rules
 - ec2 : 2 rules
