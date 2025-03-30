@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Notify Discord
         env:
-          DISCORD_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
+          MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
         run: |
           curl -H "Content-Type: application/json" \
             -X POST \
