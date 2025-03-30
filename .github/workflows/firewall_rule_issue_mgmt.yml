@@ -11,8 +11,10 @@ jobs:
       issues: write
       contents: write
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
       - name: Comment and Update Related Issue
-      - uses: actions/checkout@v4
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
