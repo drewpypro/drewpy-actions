@@ -1,0 +1,11 @@
+The following issues were found for Ip Validation:
+
+Error: Invalid CIDR block 6969:6969:6969:6969:0:6969:6969:6969:6969/128: Must be a valid IPv6 CIDR notation
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 254, 'to_port': 44, 'ip_protocol': 'icmp', 'referenced_security_group_id': 'null', 'cidr_ipv4': 'null', 'cidr_ipv6': '6969:6969:6969:6969:0:6969:6969:6969:6969/128', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: IP address 192.168.1.1 must be in CIDR notation (e.g., x.x.x.x/32 for IPv4, x:x:x:x:x:x:x:x/128 for IPv6)
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 254, 'to_port': 44, 'ip_protocol': 'icmp', 'referenced_security_group_id': 'null', 'cidr_ipv4': '192.168.1.1', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: Invalid CIDR block 192.168.1.1/33: Must be a valid IPv4 CIDR notation
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 254, 'to_port': 44, 'ip_protocol': 'icmp', 'referenced_security_group_id': 'null', 'cidr_ipv4': '192.168.1.1/33', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+

@@ -1,0 +1,32 @@
+The following issues were found for Invalid Fields:
+
+Error: Direction must be either 'ingress' or 'egress'
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ds', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: Protocol must be one of: tcp, udp, icmp
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'egress', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'ds', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+The following issues were found for Port Validation:
+
+Error: Port values must be integers, got from_port=0, to_port=ds
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 0, 'to_port': 'ds', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+The following issues were found for Multiple Source Declarations:
+
+Error: Only one source (security group, CIDR IPv4, or CIDR IPv6) can be specified per rule
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': '192.168.1.1/32', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: Only one source (security group, CIDR IPv4, or CIDR IPv6) can be specified per rule
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': '192.168.1.1/32', 'cidr_ipv6': '6969:6969:6969:6969:6969:6969:6969:6969:6969/128', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: Only one source (security group, CIDR IPv4, or CIDR IPv6) can be specified per rule
+Row data: {'RequestID': 'Request00001', 'name': 'null', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': '192.168.1.1/32', 'cidr_ipv6': '6969:6969:6969:6969:6969:6969:6969:6969:6969/128', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+The following issues were found for Ip Validation:
+
+Error: Invalid CIDR block 6969:6969:6969:6969:6969:6969:6969:6969:6969/128: Must be a valid IPv6 CIDR notation
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': '192.168.1.1/32', 'cidr_ipv6': '6969:6969:6969:6969:6969:6969:6969:6969:6969/128', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: Invalid CIDR block 6969:6969:6969:6969:6969:6969:6969:6969:6969/128: Must be a valid IPv6 CIDR notation
+Row data: {'RequestID': 'Request00001', 'name': 'null', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 0, 'to_port': '255', 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': '192.168.1.1/32', 'cidr_ipv6': '6969:6969:6969:6969:6969:6969:6969:6969:6969/128', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+

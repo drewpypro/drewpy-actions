@@ -1,0 +1,14 @@
+The following issues were found for Port Validation:
+
+Error: Invalid ICMP ports: 0, 256. ICMP: ports must be 0-255 (representing type/code)
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'egress', 'from_port': 0, 'to_port': 256, 'ip_protocol': 'icmp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: From port (65) cannot be greater than to port (0)
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 65, 'to_port': 0, 'ip_protocol': 'udp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: From port (65) cannot be greater than to port (0)
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 65, 'to_port': 0, 'ip_protocol': 'tcp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+
+Error: Invalid port range: 65, 655555. TCP/UDP: ports must be 0-65535 and from_port <= to_port
+Row data: {'RequestID': 'Request00001', 'name': 'worker_nodes', 'security_group_id': 'worker_nodes', 'direction': 'ingress', 'from_port': 65, 'to_port': 655555, 'ip_protocol': 'tcp', 'referenced_security_group_id': 'ec2_test_sg', 'cidr_ipv4': 'null', 'cidr_ipv6': 'null', 'business_justification': 'Allow Type 0 Code 0 (echo-Reply)'}
+

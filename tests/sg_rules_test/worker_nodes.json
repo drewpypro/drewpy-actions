@@ -1,0 +1,67 @@
+[
+    {
+        "RequestID": "Request00001",
+        "name": "worker_nodes",
+        "security_group_id": "worker_nodes",
+        "direction": "egress",
+        "from_port": 0,
+        "to_port": 255,
+        "ip_protocol": "icmp",
+        "referenced_security_group_id": "ec2_test_sg",
+        "cidr_ipv4": "null",
+        "cidr_ipv6": "null",
+        "business_justification": "Allow Type 0 Code 0 (echo-Reply)"
+    },
+    {
+        "RequestID": "Request00001",
+        "name": "worker_nodes",
+        "security_group_id": "worker_nodes",
+        "direction": "ingress",
+        "from_port": 69,
+        "to_port": 69,
+        "ip_protocol": "tcp",
+        "referenced_security_group_id": "ec2_test_sg",
+        "cidr_ipv4": "null",
+        "cidr_ipv6": "null",
+        "business_justification": "Allow Type 0 Code 0 (echo-Reply)"
+    },
+    {
+        "RequestID": "Request00001",
+        "name": "worker_nodes",
+        "security_group_id": "worker_nodes",
+        "direction": "ingress",
+        "from_port": 69,
+        "to_port": 69,
+        "ip_protocol": "udp",
+        "referenced_security_group_id": "ec2_test_sg",
+        "cidr_ipv4": "null",
+        "cidr_ipv6": "null",
+        "business_justification": "Allow Type 0 Code 0 (echo-Reply)"
+    },
+    {
+        "RequestID": "Request00001",
+        "name": "worker_nodes",
+        "security_group_id": "worker_nodes",
+        "direction": "ingress",
+        "from_port": 69,
+        "to_port": 69,
+        "ip_protocol": "udp",
+        "referenced_security_group_id": "null",
+        "cidr_ipv4": "192.168.1.1/32",
+        "cidr_ipv6": "null",
+        "business_justification": "Allow Type 0 Code 0 (echo-Reply)"
+    },
+    {
+        "RequestID": "Request00001",
+        "name": "worker_nodes",
+        "security_group_id": "worker_nodes",
+        "direction": "ingress",
+        "from_port": 69,
+        "to_port": 69,
+        "ip_protocol": "udp",
+        "referenced_security_group_id": "null",
+        "cidr_ipv4": "null",
+        "cidr_ipv6": "6969:6969:6969:6969:6969:6969:6969:6969/128",
+        "business_justification": "Allow Type 0 Code 0 (echo-Reply)"
+    }
+]

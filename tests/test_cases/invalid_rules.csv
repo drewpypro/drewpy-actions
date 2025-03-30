@@ -1,0 +1,7 @@
+RequestID,name,security_group_id,direction,from_port,to_port,ip_protocol,referenced_security_group_id,cidr_ipv4,cidr_ipv6,business_justification
+Request00001,worker_nodes,worker_nodes,egress,0,255,ds,ec2_test_sg,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,0,ds,udp,ec2_test_sg,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ds,0,255,udp,ec2_test_sg,null,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,0,255,udp,ec2_test_sg,192.168.1.1/32,null,Allow Type 0 Code 0 (echo-Reply)
+Request00001,worker_nodes,worker_nodes,ingress,0,255,udp,ec2_test_sg,192.168.1.1/32,6969:6969:6969:6969:6969:6969:6969:6969:6969/128,Allow Type 0 Code 0 (echo-Reply)
+Request00001,,worker_nodes,ingress,0,255,udp,ec2_test_sg,192.168.1.1/32,6969:6969:6969:6969:6969:6969:6969:6969:6969/128,Allow Type 0 Code 0 (echo-Reply)
