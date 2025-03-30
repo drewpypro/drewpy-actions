@@ -323,3 +323,4 @@ Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,10.0.0.0/8,null,null,A
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,worker_nodes,null,null,null,Allow worker to s3 prefixes
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,null,null,s3,Allow worker to s3 prefixes
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,null,null,dynamodb,Allow worker to s3 prefixes
+Request00001,vpce_ec2,vpce_ec2,ingress,553,7070,tcp,worker_nodes,null,null,null,this is my business justification again
