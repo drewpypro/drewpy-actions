@@ -1,37 +1,24 @@
-name: Firewall Rule Validation and Conversion
+name: Firewall Rule Conversion
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  push:
+    branches: [main]
+    paths:
+      - 'firewall_rules.csv'
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Validate Firewall Rules CSV
-        uses: ./rule_validation
-        with:
-          input-file: firewall_rules.csv
-
   convert:
-    needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }} 
-          
+
       - name: Convert Firewall Rules CSV to JSON
         uses: ./rule_conversion
         with:
           input-file: firewall_rules.csv
-      
+
       - name: Commit JSON Changes
         run: |
           git config user.name "github-actions"
