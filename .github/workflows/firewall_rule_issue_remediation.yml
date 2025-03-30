@@ -12,6 +12,9 @@ jobs:
       issues: write
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
       - name: Label and close stale issues
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
