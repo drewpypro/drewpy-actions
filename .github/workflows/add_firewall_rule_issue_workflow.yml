@@ -33,14 +33,21 @@ jobs:
         continue-on-error: true
 
       - name: Post Validation Output to Issue
+        id: comment_validation_output
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
-          echo "Posting validation output to issue..."
-          gh issue comment ${{ github.event.issue.number }} --body "📋 **Validation output**:\n\n\`\`\`\n${{ steps.run_validation.outputs.result }}\n\`\`\`"
+          echo "📋 **Validation output**:" > comment.txt
+          echo '```' >> comment.txt
+          echo "${{ steps.run_validation.outputs.result }}" >> comment.txt
+          echo '```' >> comment.txt
 
-          if echo "${{ steps.run_validation.outputs.result }}" | grep -q "Error:"; then
-            echo "Adding 'needs-fix' label due to validation errors"
+          cat comment.txt
+
+          gh issue comment ${{ github.event.issue.number }} --body-file comment.txt
+
+          if grep -q "Error:" comment.txt; then
+            echo "Validation failed, labeling issue and stopping"
             gh issue edit ${{ github.event.issue.number }} --add-label "needs-fix"
             exit 1
           fi
