@@ -10,9 +10,9 @@ jobs:
     steps:
       - name: Notify Discord
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
         run: |
           curl -H "Content-Type: application/json" \
             -X POST \
             -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
-            $DISCORD_WEBHOOK
+            $MESSAGE_WEBHOOK
