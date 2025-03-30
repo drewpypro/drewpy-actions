@@ -1,7 +1,7 @@
 # Security Group Rule Count:
 
 ## Ingress Rules:
-- autoscaling : 10 rules
+- autoscaling : 2 rules
 - cluster_endpoint : 4 rules
 - dms : 2 rules
 - ec2 : 2 rules
@@ -20,6 +20,7 @@
 - ssm : 2 rules
 - ssmmessages : 2 rules
 - sts : 2 rules
+- vpce_ec2 : 1 rules
 - worker_nodes : 39 rules
 
 ## Egress Rules:
