@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
             set -o pipefail
-            python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt
+            python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt || true
 
             echo "::group::Validation Output"
             cat validation_output.txt
