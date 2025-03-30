@@ -41,6 +41,7 @@ jobs:
 
 
       - name: Commit Changes and Create PR
+        id: create_pr
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
