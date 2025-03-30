@@ -1,0 +1,22 @@
+name: Handle Closed PR for Firewall Rules
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  handle_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Close and Comment on Related Issue
+        if: github.event.pull_request.merged == true
+        env:
+          PAT_GITHUB_ACTIONS : ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
+          ISSUE_NUMBER=$(echo "${{ github.event.pull_request.head.ref }}" | grep -o '[0-9]*$')
+          gh issue close $ISSUE_NUMBER -c "This issue was automatically closed as the PR (#${{ github.event.pull_request.number }}) has been merged."

@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract CSV from Issue
+      - name: Extract CSV and Append
         run: |
-          echo "${{ github.event.issue.body }}" > issue_body.txt
-          sed -n '/RequestID,name,security_group_id/,$p' issue_body.txt > new_rule.csv
+          echo "${{ github.event.issue.body }}" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
           tail -n +2 new_rule.csv >> firewall_rules.csv
+          rm new_rule.csv
 
       - name: Create branch and commit
         run: |
