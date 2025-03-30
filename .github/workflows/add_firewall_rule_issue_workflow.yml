@@ -5,7 +5,7 @@ on:
     types: [opened]
 
 jobs:
-  process_issue:
+  validate_issue:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,11 +21,9 @@ jobs:
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "::group::Extract and Append"
           echo "$ISSUE_BODY" | sed -n '/RequestID,name,security_group_id/,$p' > new_rule.csv
           tail -n +2 new_rule.csv >> firewall_rules.csv
           rm new_rule.csv
-          echo "::endgroup::"
 
       - name: Run Validation
         uses: ./rule_validation
@@ -36,7 +34,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
         run: |
-          echo "::group::commit changes and create PR"
           BRANCH_NAME="firewall-rule-${{ github.event.issue.number }}"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -50,15 +47,16 @@ jobs:
             --body "This PR was automatically generated from issue #${{ github.event.issue.number }}.\n\nPlease review and merge." \
             --base main \
             --head $BRANCH_NAME
-          echo "::endgroup::"
-
-      - name: Notify Discord
-        env:
-          MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
-        run: |
-          echo "::group::initiate webhook notification"
-          curl -H "Content-Type: application/json" \
-            -X POST \
-            -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
-            $MESSAGE_WEBHOOK
-          echo "::endgroup::"
+            
+  message_webhook:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Notify messaging webhook
+          id: message_webhook
+          env:
+            MESSAGE_WEBHOOK: ${{ secrets.MESSAGE_WEBHOOK }}
+          run: |
+            curl -H "Content-Type: application/json" \
+              -X POST \
+              -d "{\"content\":\"New PR Created: ${{ github.event.pull_request.html_url }}\"}" \
+              $MESSAGE_WEBHOOK
