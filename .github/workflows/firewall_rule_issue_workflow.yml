@@ -44,7 +44,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_GITHUB_ACTIONS }}
           branch: firewall-rule-${{ github.event.issue.number }}
           base: main
           title: "Firewall Rule Request from Issue #${{ github.event.issue.number }}"
