@@ -25,12 +25,12 @@ jobs:
             gh issue comment "$ISSUE_NUMBER" --body "This issue was automatically closed because the PR #${{ github.event.pull_request.number }} was merged."
             gh issue close "$ISSUE_NUMBER"
             gh issue edit "$ISSUE_NUMBER" --add-label "completed"
-            gh issue edit "$ISSUE_NUMBER" --remove-label "pending review" || true
+            gh issue edit "$ISSUE_NUMBER" --remove-label "pending-review" || true
             gh issue edit "$ISSUE_NUMBER" --remove-label "needs-fix" || true
           else
             gh issue comment "$ISSUE_NUMBER" --body "The PR #${{ github.event.pull_request.number }} was closed without merging. Please resubmit by editing the issue or opening a new one."
             gh issue edit "$ISSUE_NUMBER" --add-label "rejected"
-            gh issue edit "$ISSUE_NUMBER" --remove-label "pending review" || true
+            gh issue edit "$ISSUE_NUMBER" --remove-label "pending-review" || true
           fi
 
           # Always try to delete branch if not main
