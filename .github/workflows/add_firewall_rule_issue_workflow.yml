@@ -25,20 +25,25 @@ jobs:
           tail -n +2 new_rule.csv >> firewall_rules.csv
           rm new_rule.csv
 
-      - name: Run Validation
+      - name: Run Validation and Comment on Issue
+        id: run_validation
         uses: ./rule_validation
         with:
           input-file: firewall_rules.csv
+        continue-on-error: true
 
-      - name: Comment on Issue if Validation Fails
+      - name: Post Validation Output to Issue
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
-        if: failure()
         run: |
-          ERROR_MSG="${{ steps.run_validation.outputs.result }}"
-          gh issue comment ${{ github.event.issue.number }} --body "Validation failed:\n\n\`\`\`\n$ERROR_MSG\n\`\`\`"
-          gh issue edit ${{ github.event.issue.number }} --add-label "needs-fix"
+          echo "Posting validation output to issue..."
+          gh issue comment ${{ github.event.issue.number }} --body "📋 **Validation output**:\n\n\`\`\`\n${{ steps.run_validation.outputs.result }}\n\`\`\`"
 
+          if echo "${{ steps.run_validation.outputs.result }}" | grep -q "Error:"; then
+            echo "Adding 'needs-fix' label due to validation errors"
+            gh issue edit ${{ github.event.issue.number }} --add-label "needs-fix"
+            exit 1
+          fi
 
       - name: Commit Changes and Create PR
         id: create_pr

@@ -22,12 +22,21 @@ runs:
 
     - name: Run validation script
       id: run_validation
-      run: |
-        set -o pipefail
-        python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt
-        cat validation_output.txt
-        echo "result<<EOF" >> $GITHUB_OUTPUT
-        cat validation_output.txt >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        grep -q "Error:" validation_output.txt
       shell: bash
+      run: |
+            set -o pipefail
+            python ${{ github.action_path }}/validate.py --input-file "${{ inputs.input-file }}" > validation_output.txt || true
+
+            echo "::group::Validation Output"
+            cat validation_output.txt
+            echo "::endgroup::"
+
+            # Export result for GitHub Actions
+            echo "result<<EOF" >> $GITHUB_OUTPUT
+            cat validation_output.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            # Fail the step if validation errors are found
+            if grep -q "Error:" validation_output.txt; then
+              exit 1
+            fi
