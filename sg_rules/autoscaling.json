@@ -4,6 +4,20 @@
         "name": "autoscaling",
         "security_group_id": "autoscaling",
         "direction": "ingress",
+        "from_port": 1234,
+        "to_port": 5678,
+        "ip_protocol": "tcp",
+        "referenced_security_group_id": "worker_nodes",
+        "cidr_ipv4": "null",
+        "cidr_ipv6": "null",
+        "prefix_list_id": "null",
+        "business_justification": "poopoo panties pants"
+    },
+    {
+        "RequestID": "Request00001",
+        "name": "autoscaling",
+        "security_group_id": "autoscaling",
+        "direction": "ingress",
         "from_port": 1443,
         "to_port": 6443,
         "ip_protocol": "tcp",
@@ -40,5 +54,19 @@
         "cidr_ipv6": "null",
         "prefix_list_id": "null",
         "business_justification": "Enable connectivity to AWS API endpoints per service."
+    },
+    {
+        "RequestID": "Request00001",
+        "name": "autoscaling",
+        "security_group_id": "autoscaling",
+        "direction": "ingress",
+        "from_port": 7443,
+        "to_port": 9443,
+        "ip_protocol": "tcp",
+        "referenced_security_group_id": "worker_nodes",
+        "cidr_ipv4": "null",
+        "cidr_ipv6": "null",
+        "prefix_list_id": "null",
+        "business_justification": "this is my business justification again"
     }
 ]
