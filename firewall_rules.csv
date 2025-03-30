@@ -323,14 +323,3 @@ Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,10.0.0.0/8,null,null,A
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,worker_nodes,null,null,null,Allow worker to s3 prefixes
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,null,null,s3,Allow worker to s3 prefixes
 Request00001,worker_nodes,worker_nodes,egress,0,0,-1,null,null,null,dynamodb,Allow worker to s3 prefixes
-Request00001,autoscaling,autoscaling,ingress,1443,6443,tcp,worker_nodes,null,null,null,this is my business justification
-Request00001,autoscaling,autoscaling,ingress,7443,9443,tcp,worker_nodes,null,null,null,this is my business justification again
-Request00001,autoscaling,autoscaling,ingress,1234,5678,tcp,worker_nodes,null,null,null,poopoo panties pants
-Request00001,autoscaling,autoscaling,ingress,444,666,tcp,worker_nodes,null,null,null,this is my business justification again
-Request00001,autoscaling,autoscaling,ingress,55,5555,tcp,worker_nodes,null,null,null,this is my business justification again
-
-Request00001,autoscaling,autoscaling,ingress,255,555,tcp,worker_nodes,null,null,null,this is my business justification again
-Request00001,autoscaling,autoscaling,ingress,55,5555,tcp,worker_nodes,null,null,null,this is my business justification again
-
-Request00001,autoscaling,autoscaling,ingress,22,25,tcp,worker_nodes,null,null,null,this is my business justification again
-
