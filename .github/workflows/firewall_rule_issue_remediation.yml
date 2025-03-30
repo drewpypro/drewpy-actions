@@ -1,0 +1,33 @@
+name: Auto-Close Stale Labeled Issues
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" 
+
+jobs:
+  close_stale_issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Close stale issues with 'rejected' or 'needs-fix'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+        run: |
+          NOW=$(date -u +%s)
+
+          for LABEL in "rejected" "needs-fix"; do
+            gh issue list --label "$LABEL" --state open --json number,updatedAt,title \
+            | jq -c '.[]' \
+            | while read -r issue; do
+                NUMBER=$(echo "$issue" | jq -r '.number')
+                UPDATED=$(echo "$issue" | jq -r '.updatedAt')
+                UPDATED_TS=$(date -d "$UPDATED" +%s)
+                AGE_DAYS=$(( (NOW - UPDATED_TS) / 86400 ))
+
+                if [ "$AGE_DAYS" -ge 7 ]; then
+                  gh issue comment "$NUMBER" --body "⏳ This issue has been automatically closed after 7+ days of inactivity with label \`$LABEL\`. Please create a new request if needed."
+                  gh issue close "$NUMBER"
+                fi
+              done
+          done
