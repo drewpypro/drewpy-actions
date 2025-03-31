@@ -305,7 +305,7 @@ def main():
         for issue_type, items in issues.items():
             print(f"\n{issue_type.replace('_', ' ').title()}:")
             for item in items:
-                print(f"Line {item['line_number']}: {item['error']}")
+                print(f"Error: Line {item['line_number']}: {item['error']}")
                 print(f"Row data: {item['row']}\n")
         sys.exit(1)
     else:
