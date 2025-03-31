@@ -43,10 +43,11 @@ drewpy-actions/
 
 
 ```
-📁 .github/workflows
-├── firewall_rule_issue_open.yml            # Handles new issue submissions
-├── firewall_rule_pr_validation.yml         # Validates firewall_rules.csv on PR creation
-├── firewall_rule_issue_feedback.yml        # Adds issue comment if validation fails
-├── firewall_rule_pr_close.yml              # Handles PR close (merge or reject)
-├── firewall_rule_branch_cleanup.yml        # Deletes branches after PR is closed/merged
+📁 templates/.github/ISSUE_TEMPLATE
+├── firewall_rule_request.yml                    # Issues template for SG changes
+📁 templates/.github/workflows
+├── add_firewall_rule_issue_workflow.yml         # Handles new issue submissions
+├── firewall_rule_issue_mgmt.yml                 # Adds issue comment if validation fails
+├── firewall_rule_issue_remediation.yml          # Remediates stale issues
+├── firewall_rule_pr_validation_conversion.yml   # Validates firewall_rules.csv on PR creation
 ```
