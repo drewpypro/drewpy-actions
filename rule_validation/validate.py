@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 from typing import Dict, List, Any
 import ipaddress
+from pandas.errors import ParserError
 
 CONFIG = {
     "VALID_PROTOCOLS": ["tcp", "udp", "icmp", "-1"]
@@ -286,9 +287,17 @@ def main():
     parser.add_argument('--input-file', required=True, help='Input CSV file')
     args = parser.parse_args()
 
-    df = pd.read_csv(args.input_file).fillna("null")
-    line_numbers = df.index.to_series() + 2
+    try:
+        df = pd.read_csv(args.input_file).fillna("null")
+    except ParserError as e:
+        print("Error: malformed CSV input.")
+        print(f"Details: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print("Error: unknown error reading CSV.")
+        sys.exit(1)
 
+    line_numbers = df.index.to_series() + 2
     issues = validate_rules(df, line_numbers)
 
     if issues:
@@ -296,7 +305,7 @@ def main():
         for issue_type, items in issues.items():
             print(f"\n{issue_type.replace('_', ' ').title()}:")
             for item in items:
-                print(f"Error: Line {item['line_number']}: {item['error']}")
+                print(f"Line {item['line_number']}: {item['error']}")
                 print(f"Row data: {item['row']}\n")
         sys.exit(1)
     else:

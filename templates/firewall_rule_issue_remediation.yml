@@ -33,7 +33,7 @@ jobs:
                 if [ "$AGE_MINUTES" -ge 15 ]; then
                   echo "Closing stale issue #$NUMBER (created $AGE_MINUTES minutes ago)"
                   gh issue edit "$NUMBER" --add-label "stale"
-                  gh issue comment "$NUMBER" --body "⚠️ This issue was automatically closed after being labeled \`$LABEL\` for more than 15 minutes without activity. Marked as \`stale\`. Please create a new request if still needed."
+                  gh issue comment "$NUMBER" --body "⚠️ This issue was automatically closed after being labeled \`$LABEL\`. Marked as \`stale\`. Please create a new request if still needed."
                   gh issue close "$NUMBER"
                 fi
               done

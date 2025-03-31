@@ -35,6 +35,12 @@ drewpy-actions/
     * PR is created.
     * Discord is notified. 
 
+# To Do
+- rule input sanitization
+- close pr workflow only on auto-generated pr's
+- automatic release creation after PR merge
+- delete rules
+
 
 ```
 📁 .github/workflows

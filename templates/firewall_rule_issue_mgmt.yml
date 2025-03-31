@@ -22,8 +22,8 @@ jobs:
           BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
 
           if [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
-            gh issue comment "$ISSUE_NUMBER" --body "This issue was automatically closed because the PR #${{ github.event.pull_request.number }} was merged."
-            gh issue close "$ISSUE_NUMBER"
+            gh issue comment "$ISSUE_NUMBER" --body "PR #${{ github.event.pull_request.number }} was merged."
+            # gh issue close "$ISSUE_NUMBER"
             gh issue edit "$ISSUE_NUMBER" --add-label "completed"
             gh issue edit "$ISSUE_NUMBER" --remove-label "pending-review" || true
             gh issue edit "$ISSUE_NUMBER" --remove-label "needs-fix" || true

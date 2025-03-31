@@ -2,7 +2,6 @@ name: Firewall Rule Validation and Conversion
 
 on:
   pull_request:
-    types: [opened]
 
 jobs:
   validate:
@@ -13,7 +12,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Validate Firewall Rules CSV
-        uses: drewpypro/drewpy-actions/.github/rule_validation@main
+        uses: drewpypro/drewpy-actions/rule_validation@main
         with:
           input-file: firewall_rules.csv
 
@@ -28,7 +27,7 @@ jobs:
           ref: ${{ github.head_ref }} 
 
       - name: Convert Firewall Rules CSV to JSON
-        uses: drewpypro/drewpy-actions/.github/rule_conversion@main
+        uses: drewpypro/drewpy-actions/rule_conversion@main
         with:
           input-file: firewall_rules.csv
       
