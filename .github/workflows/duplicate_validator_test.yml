@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'yaml-duplicate-validator/**'
+      - 'tests/yaml-duplicate-validator/**'
       - '.github/workflows/duplicate_validator_test.yml'
 
 jobs:

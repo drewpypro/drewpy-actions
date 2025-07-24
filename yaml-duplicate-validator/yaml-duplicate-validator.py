@@ -5,14 +5,6 @@ import base64
 import requests
 from collections import defaultdict
 
-"""
-Exit Codes:
-1 - Validation failure (dupes, missing arg)
-2 - YAML/file loading/parsing error
-3 - Error writing/merging updated policy
-4 - init/general error
-"""
-
 def load_yaml_file(filepath):
     try:
         with open(filepath, "r") as f:
@@ -209,45 +201,6 @@ def check_duplicates_against_existing(request_policy, existing_policy, ip_direct
         return True, "\n".join(out), submitted_blocks
     return False, "", set()
 
-def append_new_rules_to_existing(existing_policy, request_policy, ip_direction_key, dupe_indices):
-    """Appends rules from request_policy to existing_policy if their index is not in dupe_indices."""
-    appended = False
-    for idx, rule in enumerate(request_policy["rules"]):
-        if idx not in dupe_indices:
-            existing_policy["rules"].append(rule)
-            appended = True
-    return appended, existing_policy
-
-def fetch_policy_file_from_github(repo, file, token):
-    url = f"https://api.github.com/repos/{repo}/contents/policies/{file}"
-    session = requests.session()
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"token {token}"
-    }
-    try:
-        resp = session.get(url, headers=headers)
-        if resp.status_code == 404:
-            return None
-        if not resp.ok:
-            print(f"Failed to fetch {file}: HTTP {resp.status_code}")
-            write_github_output('error_type', 'fetch_existing_error')
-            return "ERROR"
-        data = resp.json()
-        if "content" in data:
-            yaml_content = data['content']
-            yaml_parse = base64.b64decode(yaml_content)
-            yaml_str = yaml_parse.decode('utf-8')
-            return yaml.safe_load(yaml_str)
-        else:
-            print(f"Failed to fetch {file}: {data}")
-            write_github_output('error_type', 'fetch_existing_error')
-            return "ERROR"
-    except Exception as e:
-        print(f"Error fetching {file} from GitHub: {e}")
-        write_github_output('error_type', 'fetch_existing_error')
-        return "ERROR"
-
 def write_github_output(key, value):
     github_output = os.environ.get("GITHUB_OUTPUT")
     if github_output:
@@ -260,13 +213,11 @@ def main():
     token = os.getenv("token")
     existing_policy_filelist = os.getenv("existing_policy")
     if not existing_policy_filelist and len(sys.argv) > 2:
-        existing_policy_filelist = sys.argv[2]  # file with list of policy filenames
+        existing_policy_filelist = sys.argv[2]
 
     request_file = os.getenv("filename")
-    
     if not request_file and len(sys.argv) > 1:
         request_file = sys.argv[1]
-
     if not request_file:
         print("Missing request policy filename (env var 'filename' or argv[1])")
         write_github_output('error_type', 'missing_var')
@@ -282,21 +233,11 @@ def main():
 
     # Check duplicates within request
     has_within_dupe, within_output = check_duplicates_within_request(request_policy, ip_direction_key)
-    if has_within_dupe:
-        print(within_output)
-        write_github_output('duplicates_within', "true")
-        write_github_output('error_type', 'duplicates_within_request')
-        print("[ERROR 1] Duplicate policy found within request. Exiting with code 1.")
-        sys.exit(1)
-    else:
-        write_github_output('duplicates_within', "false")
 
-
-    # Prepare for cross-policy duplicate check
-    yaml_filename = os.path.basename(request_file)
-    found_file = None
-    found_existing_policy = None
-
+    # Check duplicates against ALL existing policies
+    has_ext_dupe = False
+    ext_output_list = []
+    dupe_indices = set()
     if existing_policy_filelist:
         with open(existing_policy_filelist) as f:
             files = f.read().splitlines()
@@ -312,49 +253,29 @@ def main():
                         existing_policy = None
                 if not existing_policy:
                     continue
-                # Only match filename to check for appending
-                if file == yaml_filename:
-                    found_file = file
-                    found_existing_policy = existing_policy
-                    break
+                has_dupe, ext_output, ext_dupes = check_duplicates_against_existing(
+                    request_policy, existing_policy, ip_direction_key, file
+                )
+                if has_dupe:
+                    has_ext_dupe = True
+                    ext_output_list.append(ext_output)
+                    dupe_indices.update(ext_dupes)
 
-    found_dupe = has_within_dupe
-    dupe_indices = set()
-    if found_existing_policy:
-        has_ext_dupe, ext_output, dupe_indices = check_duplicates_against_existing(
-            request_policy, found_existing_policy, ip_direction_key, found_file
-        )
-        if has_ext_dupe:
-            print(ext_output)
-            write_github_output('duplicates', "true")
-            sys.exit(1)
-        else:
-            write_github_output('duplicates', "false")
+    output_printed = False
+    if has_within_dupe:
+        print(within_output)
+        output_printed = True
+    if has_ext_dupe:
+        print("\n".join(ext_output_list))
+        output_printed = True
 
-        # Append non-duplicate rules
-        appended, new_policy = append_new_rules_to_existing(found_existing_policy, request_policy, ip_direction_key, dupe_indices)
-        if appended:
-            policy_path = f"policies/{found_file}"
-            try:
-                with open(policy_path, "w") as f:
-                    yaml.dump(new_policy, f, sort_keys=False)
-                print(f"✅ Appended new rules to {found_file}")
-                write_github_output('rules_appended', "true")
-            except Exception as e:
-                print(f"Error writing to {policy_path}: {e}")
-                write_github_output('rules_appended', "error")
-                sys.exit(3)
-        else:
-            write_github_output('rules_appended', "false")
-    else:
-        print("No matching existing policy file found, skipping append.")
-        write_github_output('duplicates', "false")
-        write_github_output('rules_appended', "false")
+    write_github_output('duplicates_within', "true" if has_within_dupe else "false")
+    write_github_output('duplicates', "true" if has_ext_dupe else "false")
 
-    write_github_output('filename', yaml_filename)
+    if output_printed:
+        sys.exit(1)
 
-    if not found_dupe:
-        print("💦 No Duplicates detected!")
-
+    print("💦 No Duplicates detected!")
+ 
 if __name__ == "__main__":
     main()
