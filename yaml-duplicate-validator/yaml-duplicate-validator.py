@@ -258,7 +258,9 @@ def main():
     # Load required env vars and args
     repo = os.getenv("repo")
     token = os.getenv("token")
-    existing_policy_filelist = os.getenv("existing_policy")  # file with list of policy filenames
+    existing_policy_filelist = os.getenv("existing_policy")
+    if not existing_policy_filelist and len(sys.argv) > 2:
+        existing_policy_filelist = sys.argv[2]  # file with list of policy filenames
 
     request_file = os.getenv("filename")
     

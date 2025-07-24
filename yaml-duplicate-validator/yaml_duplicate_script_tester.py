@@ -7,6 +7,7 @@ REQUESTS_DIR = "yaml-duplicate-validator/tests/requests"
 OUTPUTS_DIR = "yaml-duplicate-validator/tests/outputs"
 POLICIES_DIR = "yaml-duplicate-validator/tests/policies"
 EXISTING_POLICY = os.path.join(POLICIES_DIR, "existing-policy.yaml")
+POLICY_LIST = "yaml-duplicate-validator/tests/policies/policy-list.txt"
 
 def get_expected_output_file(request_file):
     base = os.path.splitext(os.path.basename(request_file))[0]
@@ -23,7 +24,7 @@ def run_test(request_file):
     
     cmd = ["python3", SCRIPT_PATH, request_file]
     if needs_existing_policy(request_file):
-        cmd.append(EXISTING_POLICY)
+        cmd.append(POLICY_LIST)
     
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     actual_output = result.stdout.strip()
