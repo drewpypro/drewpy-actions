@@ -3,8 +3,8 @@ name: Python Unit Test Workflow
 on:
   pull_request:
     paths:
-      - 'rule_conversion/**'
-      - 'rule_validation/**'
+      - 'rule_conversion/*'
+      - 'rule_validation/*'
       - '.github/workflows/unittest.yml'
   
 jobs:
