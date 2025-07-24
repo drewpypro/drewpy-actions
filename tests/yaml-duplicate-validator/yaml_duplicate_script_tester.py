@@ -3,11 +3,11 @@ import glob
 import subprocess
 
 SCRIPT_PATH = "../../../yaml-duplicate-validator/yaml-duplicate-validator.py"
-REQUESTS_DIR = "tests/requests"
-OUTPUTS_DIR = "tests/outputs"
-POLICIES_DIR = "tests/policies"
+REQUESTS_DIR = "requests"
+OUTPUTS_DIR = "outputs"
+POLICIES_DIR = "policies"
 EXISTING_POLICY = os.path.join(POLICIES_DIR, "existing-policy.yaml")
-POLICY_LIST = "tests/policies/policy-list.txt"
+POLICY_LIST = "policies/policy-list.txt"
 
 def get_expected_output_file(request_file):
     base = os.path.splitext(os.path.basename(request_file))[0]
