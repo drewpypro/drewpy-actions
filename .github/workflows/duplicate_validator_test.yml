@@ -1,0 +1,31 @@
+name: Duplicate YAML Validator CI
+
+on:
+  pull_request:
+    paths:
+      - 'yaml-duplicate-validator/**'
+      - 'tests/yaml-duplicate-validator/**'
+      - '.github/workflows/duplicate_validator_test.yml'
+
+jobs:
+  test-validator:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r yaml-duplicate-validator/requirements.txt
+
+      - name: Run duplicate policy tests
+        run: |
+          cd tests/yaml-duplicate-validator
+          python3 yaml_duplicate_script_tester.py
