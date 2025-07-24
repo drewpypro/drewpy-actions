@@ -12,15 +12,12 @@ inputs:
     required: true
 
 outputs:
-  find_duplicates:
-    description: 'find dupes'
-    value: ${{ steps.find_duplicates.outputs.duplicates }}
-  duplicates_within:
-    description: 'duplicates within the request'
-    value: ${{ steps.find_duplicates.outputs.duplicates_within }}
-  rule_numbers:
-    description: 'index of rule numbers'
-    value: ${{ steps.find_duplicates.outputs.rule_nums }}
+  pretty_message:
+    description: 'Pretty, markdown-formatted duplicate detection message'
+    value: ${{ steps.find_duplicates.outputs.pretty_message }}
+  duplicates_detected:
+    description: 'True if duplicates found'
+    value: ${{ steps.find_duplicates.outputs.duplicates_detected }}
 
 runs:
   using: "composite"
@@ -46,11 +43,19 @@ runs:
     
     - name: Check for duplicates
       env: 
-        existing_policy: policies.txt
         created_yaml: ${{ inputs.created_yaml }}
         token: ${{ inputs.token }}
         repo: ${{ inputs.repo }}
       id: find_duplicates
-      run: |
-        python ${{github.action_path}}/yaml-duplicate.validator.py
       shell: bash
+      run: |
+        set +e
+        python ${{github.action_path}}/yaml-duplicate-validator.py > dupe_output.txt 2>&1
+        STATUS=$?
+        cat dupe_output.txt
+        # Emit output for use by workflow
+        echo "pretty_message<<EOF" >> $GITHUB_OUTPUT
+        cat dupe_output.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        echo "duplicates_detected=$([ $STATUS -eq 1 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+        exit $STATUS

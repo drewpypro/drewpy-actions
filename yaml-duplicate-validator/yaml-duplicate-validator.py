@@ -215,11 +215,11 @@ def main():
     if not existing_policy_filelist and len(sys.argv) > 2:
         existing_policy_filelist = sys.argv[2]
 
-    request_file = os.getenv("filename")
+    request_file = os.getenv("created_yaml")
     if not request_file and len(sys.argv) > 1:
         request_file = sys.argv[1]
     if not request_file:
-        print("Missing request policy filename (env var 'filename' or argv[1])")
+        print("Missing request policy filename (env var 'created_yaml' or argv[1])")
         write_github_output('error_type', 'missing_var')
         sys.exit(4)
 
