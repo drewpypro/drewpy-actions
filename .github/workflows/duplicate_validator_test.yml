@@ -26,4 +26,5 @@ jobs:
 
       - name: Run duplicate policy tests
         run: |
-          python3 yaml-duplicate-validator/yaml_duplicate_script_tester.py
+          cd tests/yaml-duplicate-validator
+          python3 yaml_duplicate_script_tester.py
