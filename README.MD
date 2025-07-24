@@ -9,6 +9,10 @@ drewpy-actions/
     │   └── firewall_rule_issue_workflow.yml
     └── ISSUE_TEMPLATE/
         └── firewall_rule_request.yml
+├── yaml-duplicate-validator/
+    ├── action.yml
+    ├── yaml-duplicate-validator.py
+    └── requirements.txt
 ├── rule_validation/
     ├── action.yml
     ├── validate.py
@@ -51,3 +55,5 @@ drewpy-actions/
 ├── firewall_rule_issue_remediation.yml          # Remediates stale issues
 ├── firewall_rule_pr_validation_conversion.yml   # Validates firewall_rules.csv on PR creation
 ```
+
+# Yaml duplicate detection
