@@ -1,0 +1,188 @@
+security_group:
+  serviceType: privatelink-consumer
+  serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-1111222233334444
+  thirdpartyName: stress-test
+rules:
+  # 1. Duplicate IP in the same rule
+  - request_id: RQ-001
+    source:
+      ips:
+        - 10.1.1.1/32
+        - 10.2.2.2/32
+        - 10.1.1.1/32
+        - 10.3.3.3/32
+    protocol: TCP
+    port: 443
+    appid: SSL
+    url: https://api.example.com
+
+  # 2. Overlapping IP with case difference in proto/appid, port as string
+  - request_id: RQ-002
+    source:
+      ips:
+        - 10.2.2.2/32
+        - 10.4.4.4/32
+    protocol: tcp
+    port: '443'
+    appid: ssl
+    url: https://api.example.com
+
+  # 3. Same as rule 2, different IP order, port as int
+  - request_id: RQ-003
+    source:
+      ips:
+        - 10.4.4.4/32
+        - 10.2.2.2/32
+    protocol: tcp
+    port: 443
+    appid: ssl
+    url: https://api.example.com
+
+  # 4. Partial overlap (one IP)
+  - request_id: RQ-004
+    source:
+      ips:
+        - 10.3.3.3/32
+        - 10.5.5.5/32
+    protocol: udp
+    port: 53
+    appid: dns
+    url: https://api.other.com
+
+  # 5. Same as rule 4 but appid/proto upper case, port as string
+  - request_id: RQ-005
+    source:
+      ips:
+        - 10.5.5.5/32
+        - 10.3.3.3/32
+    protocol: UDP
+    port: '53'
+    appid: DNS
+    url: https://api.other.com
+
+  # 6-15. Large number of unique rules
+  - request_id: RQ-006
+    source:
+      ips:
+        - 10.6.6.6/32
+        - 10.7.7.7/32
+    protocol: tcp
+    port: 100
+    appid: custom6
+    url: https://api.example.com
+
+  - request_id: RQ-007
+    source:
+      ips:
+        - 10.7.7.7/32
+        - 10.8.8.8/32
+    protocol: tcp
+    port: 101
+    appid: custom7
+    url: https://api.example.com
+
+  - request_id: RQ-008
+    source:
+      ips:
+        - 10.8.8.8/32
+        - 10.9.9.9/32
+    protocol: tcp
+    port: 102
+    appid: custom8
+    url: https://api.example.com
+
+  - request_id: RQ-009
+    source:
+      ips:
+        - 10.9.9.9/32
+        - 10.10.10.10/32
+    protocol: tcp
+    port: 103
+    appid: custom9
+    url: https://api.example.com
+
+  - request_id: RQ-010
+    source:
+      ips:
+        - 10.10.10.10/32
+        - 10.11.11.11/32
+    protocol: tcp
+    port: 104
+    appid: custom10
+    url: https://api.example.com
+
+  - request_id: RQ-011
+    source:
+      ips:
+        - 10.11.11.11/32
+        - 10.12.12.12/32
+    protocol: tcp
+    port: 105
+    appid: custom11
+    url: https://api.example.com
+
+  - request_id: RQ-012
+    source:
+      ips:
+        - 10.12.12.12/32
+        - 10.13.13.13/32
+    protocol: tcp
+    port: 106
+    appid: custom12
+    url: https://api.example.com
+
+  - request_id: RQ-013
+    source:
+      ips:
+        - 10.13.13.13/32
+        - 10.14.14.14/32
+    protocol: tcp
+    port: 107
+    appid: custom13
+    url: https://api.example.com
+
+  - request_id: RQ-014
+    source:
+      ips:
+        - 10.14.14.14/32
+        - 10.15.15.15/32
+    protocol: tcp
+    port: 108
+    appid: custom14
+    url: https://api.example.com
+
+  - request_id: RQ-015
+    source:
+      ips:
+        - 10.15.15.15/32
+        - 10.16.16.16/32
+    protocol: tcp
+    port: 109
+    appid: custom15
+    url: https://api.example.com
+
+  # 16. Same as rule 1 but different case and port as string
+  - request_id: RQ-016
+    source:
+      ips:
+        - 10.1.1.1/32
+        - 10.2.2.2/32
+        - 10.1.1.1/32
+        - 10.3.3.3/32
+    protocol: tcp
+    port: '443'
+    appid: ssl
+    url: https://api.example.com
+
+  # 17. Same as rule 1 but URL capitalization different
+  - request_id: RQ-017
+    source:
+      ips:
+        - 10.1.1.1/32
+        - 10.2.2.2/32
+        - 10.3.3.3/32
+    protocol: TCP
+    port: 443
+    appid: SSL
+    url: HTTPS://API.EXAMPLE.COM
+

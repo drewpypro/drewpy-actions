@@ -1,0 +1,56 @@
+name: "Check duplicates and merge existing"
+description: "Check for duplicates within and between existing policy and merge if necessary"
+inputs:
+  created_yaml:
+    description: "current issue payload"
+    required: true
+  token:
+    description: 'github pat'
+    required: true
+  repo:
+    description: 'github repository'
+    required: true
+
+outputs:
+  find_duplicates:
+    description: 'find dupes'
+    value: ${{ steps.find_duplicates.outputs.duplicates }}
+  duplicates_within:
+    description: 'duplicates within the request'
+    value: ${{ steps.find_duplicates.outputs.duplicates_within }}
+  rule_numbers:
+    description: 'index of rule numbers'
+    value: ${{ steps.find_duplicates.outputs.rule_nums }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        clean: false
+    
+    - name: Get existing policy files to check against new request yaml
+      shell: bash
+      run: |
+        policies_folder=$(curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ inputs.token }}" \
+          https://github.com/api/v3/repos/${{ inputs.repo }}/contents/policies)
+        echo "$policies_folder" | jq -r '.[].name' > policies.txt
+
+    - name: Install deps
+      run: |
+        python -m pip install -r ${{github.action_path}}/requirements.txt
+      shell: bash
+    
+    - name: Check for duplicates
+      env: 
+        existing_policy: policies.txt
+        created_yaml: ${{ inputs.created_yaml }}
+        token: ${{ inputs.token }}
+        repo: ${{ inputs.repo }}
+      id: find_duplicates
+      run: |
+        python ${{github.action_path}}/yaml-duplicate.validator.py
+      shell: bash
