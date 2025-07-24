@@ -5,9 +5,22 @@ import base64
 import requests
 from collections import defaultdict
 
+"""
+Exit Codes:
+1 - Validation failure (dupes, missing arg)
+2 - YAML/file loading/parsing error
+3 - Error writing/merging updated policy
+4 - init/general error
+"""
+
 def load_yaml_file(filepath):
-    with open(filepath, "r") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(filepath, "r") as f:
+            return yaml.safe_load(f)
+    except Exception as e:
+        print(f"Error loading YAML file {filepath}: {e}")
+        write_github_output('error_type', 'load_error')
+        sys.exit(2)
 
 def format_rule_yaml(rule, ip_direction_key, highlight_ips=None, highlight_all_fields=False):
     lines = []
@@ -206,7 +219,6 @@ def append_new_rules_to_existing(existing_policy, request_policy, ip_direction_k
     return appended, existing_policy
 
 def fetch_policy_file_from_github(repo, file, token):
-    """Fetches a policy YAML file from GitHub using the API, returns the parsed YAML dict."""
     url = f"https://api.github.com/repos/{repo}/contents/policies/{file}"
     session = requests.session()
     headers = {
@@ -214,20 +226,27 @@ def fetch_policy_file_from_github(repo, file, token):
         "Authorization": f"token {token}"
     }
     try:
-        _req = session.get(url, headers=headers)
-        data = _req.json()
+        resp = session.get(url, headers=headers)
+        if resp.status_code == 404:
+            return None
+        if not resp.ok:
+            print(f"Failed to fetch {file}: HTTP {resp.status_code}")
+            write_github_output('error_type', 'fetch_existing_error')
+            return "ERROR"
+        data = resp.json()
         if "content" in data:
             yaml_content = data['content']
             yaml_parse = base64.b64decode(yaml_content)
             yaml_str = yaml_parse.decode('utf-8')
-            parsed_yaml = yaml.safe_load(yaml_str)
-            return parsed_yaml
+            return yaml.safe_load(yaml_str)
         else:
             print(f"Failed to fetch {file}: {data}")
-            return None
+            write_github_output('error_type', 'fetch_existing_error')
+            return "ERROR"
     except Exception as e:
         print(f"Error fetching {file} from GitHub: {e}")
-        return None
+        write_github_output('error_type', 'fetch_existing_error')
+        return "ERROR"
 
 def write_github_output(key, value):
     github_output = os.environ.get("GITHUB_OUTPUT")
@@ -237,16 +256,25 @@ def write_github_output(key, value):
 
 def main():
     # Load required env vars and args
-    request_file = os.getenv("filename") or (len(sys.argv) > 1 and sys.argv[1])
     repo = os.getenv("repo")
     token = os.getenv("token")
     existing_policy_filelist = os.getenv("existing_policy")  # file with list of policy filenames
 
+    request_file = os.getenv("filename")
+    
+    if not request_file and len(sys.argv) > 1:
+        request_file = sys.argv[1]
+
     if not request_file:
         print("Missing request policy filename (env var 'filename' or argv[1])")
-        sys.exit(1)
+        write_github_output('error_type', 'missing_var')
+        sys.exit(4)
 
     request_policy = load_yaml_file(request_file)
+    if request_policy is None:
+        print("Failed to load or parse request policy YAML.")
+        sys.exit(2)
+    
     service_type = request_policy["security_group"].get("serviceType", "")
     ip_direction_key = "source" if service_type == "privatelink-consumer" else "destination"
 
@@ -255,9 +283,12 @@ def main():
     if has_within_dupe:
         print(within_output)
         write_github_output('duplicates_within', "true")
+        write_github_output('error_type', 'duplicates_within_request')
+        print("[ERROR 1] Duplicate policy found within request. Exiting with code 1.")
+        sys.exit(1)
     else:
         write_github_output('duplicates_within', "false")
-    sys.exit(1)
+
 
     # Prepare for cross-policy duplicate check
     yaml_filename = os.path.basename(request_file)
@@ -302,10 +333,15 @@ def main():
         appended, new_policy = append_new_rules_to_existing(found_existing_policy, request_policy, ip_direction_key, dupe_indices)
         if appended:
             policy_path = f"policies/{found_file}"
-            with open(policy_path, "w") as f:
-                yaml.dump(new_policy, f, sort_keys=False)
-            print(f"✅ Appended new rules to {found_file}")
-            write_github_output('rules_appended', "true")
+            try:
+                with open(policy_path, "w") as f:
+                    yaml.dump(new_policy, f, sort_keys=False)
+                print(f"✅ Appended new rules to {found_file}")
+                write_github_output('rules_appended', "true")
+            except Exception as e:
+                print(f"Error writing to {policy_path}: {e}")
+                write_github_output('rules_appended', "error")
+                sys.exit(3)
         else:
             write_github_output('rules_appended', "false")
     else:
