@@ -1,4 +1,4 @@
-🏛️ Duplicates detected in existing policy tests/policies/existing-policy.yaml
+🏛️ Duplicates detected in existing policy existing-policy.yaml
 
 # Submitted policy rule index #1 matches existing policy rule index #1, #2
 ```yaml

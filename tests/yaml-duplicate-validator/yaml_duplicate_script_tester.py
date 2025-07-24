@@ -1,8 +1,9 @@
 import os
 import glob
 import subprocess
+import requests 
 
-SCRIPT_PATH = "../../../yaml-duplicate-validator/yaml-duplicate-validator.py"
+SCRIPT_PATH = "../../yaml-duplicate-validator/yaml-duplicate-validator.py"
 REQUESTS_DIR = "requests"
 OUTPUTS_DIR = "outputs"
 POLICIES_DIR = "policies"
@@ -22,11 +23,27 @@ def run_test(request_file):
         print(f"[SKIP] No expected output for {request_file}")
         return "SKIP"
     
+    # # DEBUG PRINTS
+    # print("\n==================== DEBUG INFO ====================")
+    # print(f"Current Working Directory: {os.getcwd()}")
+    # print("Files in .:", os.listdir("."))
+    # print("Files in requests:", os.listdir(REQUESTS_DIR) if os.path.exists(REQUESTS_DIR) else "No such directory")
+    # print("Files in outputs:", os.listdir(OUTPUTS_DIR) if os.path.exists(OUTPUTS_DIR) else "No such directory")
+    # print("Files in policies:", os.listdir(POLICIES_DIR) if os.path.exists(POLICIES_DIR) else "No such directory")
+    # print(f"About to run: python3 {SCRIPT_PATH} {request_file}{' ' + POLICY_LIST if needs_existing_policy(request_file) else ''}")
+    # print(f"Looking for expected output file: {expected_output_file} (Exists: {os.path.exists(expected_output_file)})")
+    # print("====================================================\n")
+    
     cmd = ["python3", SCRIPT_PATH, request_file]
     if needs_existing_policy(request_file):
         cmd.append(POLICY_LIST)
     
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    print("Subprocess STDOUT:")
+    print(result.stdout)
+    print("Subprocess STDERR:")
+    print(result.stderr)
+    
     actual_output = result.stdout.strip()
     with open(expected_output_file, "r") as f:
         expected_output = f.read().strip()
@@ -51,7 +68,14 @@ def run_test(request_file):
 
 def main():
     print("==== Running Duplicate Policy Script Tests ====")
+    print(f"Current Working Directory at Start: {os.getcwd()}")
+    print("Files in .:", os.listdir("."))
+    print("Files in requests:", os.listdir(REQUESTS_DIR) if os.path.exists(REQUESTS_DIR) else "No such directory")
+    print("Files in outputs:", os.listdir(OUTPUTS_DIR) if os.path.exists(OUTPUTS_DIR) else "No such directory")
+    print("Files in policies:", os.listdir(POLICIES_DIR) if os.path.exists(POLICIES_DIR) else "No such directory")
+    print("---------------------------------------------------")
     request_files = sorted(glob.glob(os.path.join(REQUESTS_DIR, "*.yaml")))
+    print(f"Request files found: {request_files}")
     results = []
     total = len(request_files)
     passed = 0
