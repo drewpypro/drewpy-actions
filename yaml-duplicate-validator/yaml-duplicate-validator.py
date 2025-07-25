@@ -275,6 +275,18 @@ def main():
     if output_printed:
         sys.exit(1)
 
+    region = request_policy['security_group'].get('region', 'unknown')
+    if service_type == "privatelink-consumer":
+        thirdparty_name = request_policy['security_group'].get('thirdpartyName', 'unknown').lower()
+        thirdparty_id = request_policy['security_group'].get('thirdPartyID', 'policy')
+        filename = f"{thirdparty_name}-{thirdparty_id}-{region}-policy.yaml"
+    else:
+        internal_app_id = request_policy['security_group'].get('internalAppID', 'unknown').lower()
+        service_name = request_policy['security_group'].get('serviceName', 'unknown').lower()
+        filename = f"{internal_app_id}-{service_name}-{region}-policy.yaml"
+
+    print(f"{request_file} {filename}") 
+
     print("💦 No Duplicates detected!")
  
 if __name__ == "__main__":

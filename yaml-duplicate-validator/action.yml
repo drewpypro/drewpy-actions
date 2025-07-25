@@ -2,7 +2,7 @@ name: "Check duplicates and merge existing"
 description: "Check for duplicates within and between existing policy and merge if necessary"
 inputs:
   created_yaml:
-    description: "current issue payload"
+    description: "list of request yaml(s)"
     required: true
   token:
     description: 'github pat'
@@ -18,6 +18,9 @@ outputs:
   duplicates_detected:
     description: 'True if duplicates found'
     value: ${{ steps.find_duplicates.outputs.duplicates_detected }}
+  validated_policy_filenames:
+    description: "Space-separated list of filenames that passed validation"
+    value: ${{ steps.find_duplicates.outputs.validated_policy_filenames }}
 
 runs:
   using: "composite"
@@ -41,21 +44,34 @@ runs:
         python -m pip install -r ${{github.action_path}}/requirements.txt
       shell: bash
     
+
     - name: Check for duplicates
-      env: 
-        created_yaml: ${{ inputs.created_yaml }}
-        token: ${{ inputs.token }}
-        repo: ${{ inputs.repo }}
       id: find_duplicates
       shell: bash
+      env: 
+        token: ${{ inputs.token }}
+        repo: ${{ inputs.repo }}
       run: |
-        set +e
-        python ${{github.action_path}}/yaml-duplicate-validator.py > dupe_output.txt 2>&1
-        STATUS=$?
-        cat dupe_output.txt
-        # Emit output for use by workflow
+        set -e
+        rm -f validated_filenames.txt
+        status=0
+        for file in ${{ inputs.created_yaml }}; do
+          # validator must output: <inputfile> <outputfilename> if pass, or exit 1 on fail
+          result=$(python ${{github.action_path}}/yaml-duplicate-validator.py --created_yaml "$file" --token "$token" --repo "$repo")
+          exit_code=$?
+          if [ $exit_code -eq 0 ]; then
+            echo "$result" >> validated_filenames.txt
+          else
+            cat dupe_output.txt
+            status=1
+            break
+          fi
+        done
+        # Space-separated filenames for output
+        outfiles=$(awk '{print $2}' validated_filenames.txt | tr '\n' ' ')
         echo "pretty_message<<EOF" >> $GITHUB_OUTPUT
         cat dupe_output.txt >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-        echo "duplicates_detected=$([ $STATUS -eq 1 ] && echo true || echo false)" >> $GITHUB_OUTPUT
-        exit $STATUS
+        echo "duplicates_detected=$([ $status -eq 1 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+        echo "validated_policy_filenames=$outfiles" >> $GITHUB_OUTPUT
+        exit $status
