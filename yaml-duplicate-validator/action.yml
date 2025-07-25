@@ -33,7 +33,7 @@ runs:
         policies_folder=$(curl -L \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ inputs.token }}" \
-          https://api.github.com/repos/${{ inputs.repo }}/contents/infrastructure/policies_old)
+          https://api.github.com/repos/${{ inputs.repo }}/contents/infrastructure/policies)
         echo "$policies_folder" | jq -r '.[].name' > policies.txt
 
     - name: Install deps
