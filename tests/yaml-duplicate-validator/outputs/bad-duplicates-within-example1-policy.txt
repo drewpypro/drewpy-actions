@@ -1,6 +1,6 @@
 🏛️ Duplicates detected in submitted policy
 
-# Submitted policy rule index #1 (duplicate values within rule)
+# Submitted policy rule index 1 (duplicate values within rule)
 ```yaml
     - request_id: RQ-001
       source:

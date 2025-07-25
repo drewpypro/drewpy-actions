@@ -100,12 +100,12 @@ def check_duplicates_within_request(policy, ip_direction_key):
             if idx in matches and matches[idx]:
                 match_indices = sorted(matches[idx])
                 header = (
-                    f"# Submitted policy rule index #{idx+1} matches submitted policy index "
-                    + ", ".join([f"#{j+1}" for j in match_indices])
+                    f"# Submitted policy rule index {idx+1} matches submitted policy index "
+                    + ", ".join([f"{j+1}" for j in match_indices])
                 )
                 out.append(header)
             elif has_any_highlight:
-                header = f"# Submitted policy rule index #{idx+1} (duplicate values within rule)"
+                header = f"# Submitted policy rule index {idx+1} (duplicate values within rule)"
                 out.append(header)
             else:
                 continue
@@ -173,10 +173,10 @@ def check_duplicates_against_existing(request_policy, existing_policy, ip_direct
             highlight_ips = set(rule[ip_direction_key]["ips"]) if idx in highlight_all_fields_sub else submitted_dupe[idx]
             highlight_all = idx in highlight_all_fields_sub
             if idx in submitted_matches and submitted_matches[idx]:
-                match_indices = ", ".join([f"#{i+1}" for i in sorted(submitted_matches[idx])])
-                out.append(f"# Submitted policy rule index #{idx+1} matches existing policy rule index {match_indices}")
+                match_indices = ", ".join([f"{i+1}" for i in sorted(submitted_matches[idx])])
+                out.append(f"# Submitted policy rule index {idx+1} matches existing policy rule index {match_indices}")
             else:
-                out.append(f"# Submitted policy rule index #{idx+1}")
+                out.append(f"# Submitted policy rule index {idx+1}")
             out.append("```yaml")
             out.append(format_rule_yaml(
                 rule,
@@ -189,7 +189,7 @@ def check_duplicates_against_existing(request_policy, existing_policy, ip_direct
             rule = existing_policy["rules"][idx]
             highlight_ips = set(rule[ip_direction_key]["ips"]) if idx in highlight_all_fields_exist else existing_dupe[idx]
             highlight_all = idx in highlight_all_fields_exist
-            out.append(f"# Existing policy rule index #{idx+1}")
+            out.append(f"# Existing policy rule index {idx+1}")
             out.append("```yaml")
             out.append(format_rule_yaml(
                 rule,

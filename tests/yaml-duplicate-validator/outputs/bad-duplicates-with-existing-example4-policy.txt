@@ -1,6 +1,6 @@
 🏛️ Duplicates detected in existing policy existing-policy.yaml
 
-# Submitted policy rule index #1 matches existing policy rule index #1, #2
+# Submitted policy rule index 1 matches existing policy rule index 1, 2
 ```yaml
     - request_id: RQ-001
       source:
@@ -13,7 +13,7 @@
         appid: ssl
         url: https://api.datadoghq.com
 ```
-# Existing policy rule index #1
+# Existing policy rule index 1
 ```yaml
     - request_id: RQ-001
       source:
@@ -26,7 +26,7 @@
         appid: ssl
         url: https://api.datadoghq.com
 ```
-# Existing policy rule index #2
+# Existing policy rule index 2
 ```yaml
     - request_id: RQ-002
       source:
