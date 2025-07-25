@@ -103,14 +103,13 @@ def check_duplicates_within_request(policy, ip_direction_key):
                     f"# Submitted policy rule index #{idx+1} matches submitted policy index "
                     + ", ".join([f"#{j+1}" for j in match_indices])
                 )
-                out.append(header)
             elif has_any_highlight:
                 header = f"# Submitted policy rule index #{idx+1} (duplicate values within rule)"
-                out.append(header)
             else:
                 continue
 
             out.append("```yaml")
+            out.append(header)
             out.append(format_rule_yaml(
                 rules[idx],
                 ip_direction_key,
