@@ -1,6 +1,6 @@
 🏛️ Duplicates detected in existing policy existing-policy.yaml
 
-# Submitted policy rule index 1 matches existing policy rule index 1, #2
+# Submitted policy rule index 1 matches existing policy rule index 1, 2
 ```yaml
     - request_id: RQ-001
       source:
