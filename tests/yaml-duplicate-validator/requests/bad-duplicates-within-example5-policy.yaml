@@ -2,6 +2,8 @@ security_group:
   serviceType: privatelink-consumer
   serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
   thirdpartyName: dupes-within-policy5
+  thirdPartyID: 12345
+  region: us-east-1
 rules:
   - request_id: RQ-001
     source:
