@@ -101,7 +101,7 @@ def check_duplicates_within_request(policy, ip_direction_key):
                 match_indices = sorted(matches[idx])
                 header = (
                     f"# Submitted policy rule index {idx+1} matches submitted policy index "
-                    + ", ".join([f"#{j+1}" for j in match_indices])
+                    + ", ".join([f"{j+1}" for j in match_indices])
                 )
                 out.append(header)
             elif has_any_highlight:

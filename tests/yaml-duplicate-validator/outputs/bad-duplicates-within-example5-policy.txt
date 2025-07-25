@@ -1,6 +1,6 @@
 🏛️ Duplicates detected in submitted policy
 
-# Submitted policy rule index #1 matches submitted policy index #2
+# Submitted policy rule index 1 matches submitted policy index 2
 ```yaml
     - request_id: RQ-001
       source:
@@ -13,7 +13,7 @@
 >>      appid: ssl
 >>      url: https://api.example.com
 ```
-# Submitted policy rule index #2 matches submitted policy index #1
+# Submitted policy rule index 2 matches submitted policy index 1
 ```yaml
     - request_id: RQ-002
       source:
