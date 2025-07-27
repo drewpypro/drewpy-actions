@@ -79,7 +79,6 @@ def find_five_tuple_dupes_within(rules, ip_direction_key):
 
 def find_per_ip_5tuple_dupes_within(rules, ip_direction_key):
     result = []
-    # Map: (ip, protocol, port, appid, url) -> set of rule indexes
     seen = {}
     for idx, rule in enumerate(rules):
         proto = str(rule.get("protocol", "")).lower()
@@ -89,7 +88,6 @@ def find_per_ip_5tuple_dupes_within(rules, ip_direction_key):
         for ip in rule[ip_direction_key]['ips']:
             key = (normalize_ip(ip), proto, port, appid, url)
             if key in seen:
-                # For each previous rule, check set of IPs is not identical (that's a full 5-tuple dupe)
                 for other_idx in seen[key]:
                     if idx == other_idx:
                         continue
@@ -174,7 +172,6 @@ def find_per_ip_5tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
 
 def main():
     try:
-        # Print debug info to stderr only
         print("DEBUG: yaml-duplicate-validator starting...", file=sys.stderr)
 
         if len(sys.argv) < 2:
@@ -199,18 +196,15 @@ def main():
 
         print(f"DEBUG: Loaded {len(rules)} rules from {request_file}", file=sys.stderr)
 
-        # Collect result groups
         sections_within = {}
         sections_between = {}
 
-        # These keys must exactly match your spec (and your test cases)
         key_within_5tuple = "Full 5-tuple rule duplicate within requested policy"
         key_within_per_ip = "Per-IP 5-tuple duplicate within requested policy"
         key_within_dupe_ips = "Duplicate IPs within a single rule"
         key_between_5tuple = "Full 5-tuple duplicate between requested and existing policy"
         key_between_per_ip = "Per-IP 5-tuple duplicates across files"
 
-        # Within requested policy
         within_5tuple = find_five_tuple_dupes_within(rules, ip_direction_key)
         if within_5tuple:
             sections_within[key_within_5tuple] = within_5tuple
@@ -221,7 +215,6 @@ def main():
         if within_dupe_ips:
             sections_within[key_within_dupe_ips] = within_dupe_ips
 
-        # Between requested and existing policy
         exist_rules = []
         if existing_file and os.path.isfile(existing_file):
             existing_policy = load_yaml_file(existing_file)
@@ -235,7 +228,6 @@ def main():
 
         output_lines = []
 
-        # Output within requested policy (match header and order exactly)
         if sections_within:
             output_lines.append("# ❌ Duplicates detected within requested policy")
             for header in [
@@ -250,7 +242,6 @@ def main():
                         output_lines.append("")
                         output_lines.append(block)
 
-        # Output between requested and existing policy
         if sections_between:
             if output_lines:
                 output_lines.append("")
