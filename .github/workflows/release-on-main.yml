@@ -25,8 +25,8 @@ jobs:
       - name: Get next tag
         id: tag
         run: |
-          # Get latest tag or default to v1.0.0
-          last_tag=$(git tag --list 'v*' --sort=-creatordate | head -n 1)
+          # Find the latest v1.0.X tag, or start at v1.0.0
+          last_tag=$(git tag --list 'v1.0.*' --sort=-v:refname | head -n 1)
           if [[ -z "$last_tag" ]]; then
             next_tag="v1.0.0"
           else
@@ -36,6 +36,8 @@ jobs:
             patch=$((patch+1))
             next_tag="v${major}.${minor}.${patch}"
           fi
+          echo "last_tag=$last_tag"
+          echo "next_tag=$next_tag"
           echo "next_tag=$next_tag" >> $GITHUB_OUTPUT
 
       - name: Create new tag

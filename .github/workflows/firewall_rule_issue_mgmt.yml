@@ -3,6 +3,9 @@ name: Handle Closed PR for Firewall Rules
 on:
   pull_request:
     types: [closed]
+    paths:
+      - 'rule_conversion/*'
+      - 'rule_validation/*'
 
 jobs:
   handle_issue:
