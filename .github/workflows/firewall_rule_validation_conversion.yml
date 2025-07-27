@@ -3,6 +3,9 @@ name: Firewall Rule Validation and Conversion
 on:
   pull_request:
     types: [opened]
+    paths:
+      - 'rule_conversion/*'
+      - 'rule_validation/*'
 
 jobs:
   validate:
