@@ -267,7 +267,6 @@ def main():
                         output_lines.append("")
                         output_lines.append(block)
 
-        # Join with single newlines between items
         if output_lines:
             print("\n".join(output_lines).rstrip())
             sys.exit(2)
