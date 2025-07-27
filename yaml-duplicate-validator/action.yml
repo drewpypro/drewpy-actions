@@ -36,7 +36,6 @@ runs:
       id: find_duplicates
       shell: bash
       run: |
-        set -e
         rm -f dupe_output.txt
         rm -f result.txt
 
