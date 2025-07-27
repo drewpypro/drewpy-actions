@@ -53,12 +53,12 @@ runs:
         while IFS=, read -r request_file existing_file; do
           if [[ -n "$existing_file" ]]; then
             # Capture output and exit code
-            if ! python yaml-duplicate-validator.py "$request_file" "$existing_file" > result.txt 2>&1; then
+            if ! python "${{ github.action_path }}/yaml-duplicate-validator.py" "$request_file" "$existing_file" > result.txt 2>&1; then
               status=1
               cat result.txt >> dupe_output.txt
             fi
           else
-            if ! python yaml-duplicate-validator.py "$request_file" > result.txt 2>&1; then
+            if ! python "${{ github.action_path }}/yaml-duplicate-validator.py" "$request_file" > result.txt 2>&1; then
               status=1
               cat result.txt >> dupe_output.txt
             fi
