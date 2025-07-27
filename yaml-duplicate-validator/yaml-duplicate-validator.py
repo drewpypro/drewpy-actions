@@ -252,7 +252,6 @@ def main():
 
         # Output between requested and existing policy
         if sections_between:
-            # Insert a blank line *if* there's already something in output_lines
             if output_lines:
                 output_lines.append("")
             output_lines.append("# ❌ Duplicates detected between requested and existing policy")
