@@ -115,6 +115,7 @@ def find_five_tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
     result = []
     matched_req = set()
     matched_exist = set()
+    full_tuple_pairs = set()
     for i, req_rule in enumerate(req_rules):
         req_key = rules_five_tuple_key(req_rule, ip_direction_key)
         for j, exist_rule in enumerate(exist_rules):
@@ -122,6 +123,7 @@ def find_five_tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
             if req_key == exist_key:
                 matched_req.add(i)
                 matched_exist.add(j)
+                full_tuple_pairs.add((i, j))
                 block = []
                 block.append(f"### Duplicate detected between requested policy rule {i+1} and existing policy rule {j+1}")
                 block.append("")
@@ -135,31 +137,29 @@ def find_five_tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
                 block.append(highlight_rule(exist_rule, ip_direction_key, highlight_all=True))
                 block.append("```")
                 result.append("\n".join(block))
-    return result
+    return result, full_tuple_pairs
 
-def find_per_ip_5tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
+def find_per_ip_5tuple_dupes_between(req_rules, exist_rules, ip_direction_key, already_full_pairs=None):
     result = []
     emitted = set()
+    already_full_pairs = already_full_pairs or set()
     for i, req_rule in enumerate(req_rules):
+        proto = str(req_rule.get("protocol", "")).lower()
+        port = str(req_rule.get("port", "")).strip()
+        appid = str(req_rule.get("appid", "")).lower()
+        url = normalize_url(req_rule.get("url", ""))
         for req_ip in req_rule[ip_direction_key]['ips']:
-            req_tuple = (
-                normalize_ip(req_ip),
-                str(req_rule.get("protocol", "")).lower(),
-                str(req_rule.get("port", "")).strip(),
-                str(req_rule.get("appid", "")).lower(),
-                normalize_url(req_rule.get("url", "")),
-            )
+            req_tuple = (normalize_ip(req_ip), proto, port, appid, url)
             for j, exist_rule in enumerate(exist_rules):
+                if (i, j) in already_full_pairs:
+                    continue  # skip rule-pairs already reported as full 5-tuple dupes
+                exist_proto = str(exist_rule.get("protocol", "")).lower()
+                exist_port = str(exist_rule.get("port", "")).strip()
+                exist_appid = str(exist_rule.get("appid", "")).lower()
+                exist_url = normalize_url(exist_rule.get("url", ""))
                 for exist_ip in exist_rule[ip_direction_key]['ips']:
-                    exist_tuple = (
-                        normalize_ip(exist_ip),
-                        str(exist_rule.get("protocol", "")).lower(),
-                        str(exist_rule.get("port", "")).strip(),
-                        str(exist_rule.get("appid", "")).lower(),
-                        normalize_url(exist_rule.get("url", "")),
-                    )
+                    exist_tuple = (normalize_ip(exist_ip), exist_proto, exist_port, exist_appid, exist_url)
                     if req_tuple == exist_tuple:
-                        # Now it's a real per-IP 5-tuple duplicate!
                         pair = (i, j, req_ip)
                         if pair in emitted:
                             continue
@@ -225,13 +225,14 @@ def main():
             sections_within[key_within_dupe_ips] = within_dupe_ips
 
         exist_rules = []
+        full_tuple_pairs = set()
         if existing_file and os.path.isfile(existing_file):
             existing_policy = load_yaml_file(existing_file)
             exist_rules = existing_policy.get("rules", [])
-            between_5tuple = find_five_tuple_dupes_between(rules, exist_rules, ip_direction_key)
+            between_5tuple, full_tuple_pairs = find_five_tuple_dupes_between(rules, exist_rules, ip_direction_key)
             if between_5tuple:
                 sections_between[key_between_5tuple] = between_5tuple
-            between_per_ip = find_per_ip_5tuple_dupes_between(rules, exist_rules, ip_direction_key)
+            between_per_ip = find_per_ip_5tuple_dupes_between(rules, exist_rules, ip_direction_key, already_full_pairs=full_tuple_pairs)
             if between_per_ip:
                 sections_between[key_between_per_ip] = between_per_ip
 
