@@ -141,33 +141,42 @@ def find_per_ip_5tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
     result = []
     emitted = set()
     for i, req_rule in enumerate(req_rules):
-        ips_req = set(normalize_ip(ip) for ip in req_rule[ip_direction_key]['ips'])
-        for j, exist_rule in enumerate(exist_rules):
-            ips_exist = set(normalize_ip(ip) for ip in exist_rule[ip_direction_key]['ips'])
-            common_ips = ips_req & ips_exist
-            if not common_ips:
-                continue
-            req_key = rules_five_tuple_key(req_rule, ip_direction_key)
-            exist_key = rules_five_tuple_key(exist_rule, ip_direction_key)
-            if req_key == exist_key:
-                continue
-            pair = (i, j)
-            if pair in emitted:
-                continue
-            emitted.add(pair)
-            block = []
-            block.append(f"### Duplicate detected between requested policy rule {i+1} and existing policy rule {j+1}")
-            block.append("")
-            block.append(f"#### Requested policy rule {i+1}")
-            block.append("```yaml")
-            block.append(highlight_rule(req_rule, ip_direction_key, common_ips))
-            block.append("```")
-            block.append("")
-            block.append(f"#### Existing policy rule {j+1}")
-            block.append("```yaml")
-            block.append(highlight_rule(exist_rule, ip_direction_key, common_ips))
-            block.append("```")
-            result.append("\n".join(block))
+        for req_ip in req_rule[ip_direction_key]['ips']:
+            req_tuple = (
+                normalize_ip(req_ip),
+                str(req_rule.get("protocol", "")).lower(),
+                str(req_rule.get("port", "")).strip(),
+                str(req_rule.get("appid", "")).lower(),
+                normalize_url(req_rule.get("url", "")),
+            )
+            for j, exist_rule in enumerate(exist_rules):
+                for exist_ip in exist_rule[ip_direction_key]['ips']:
+                    exist_tuple = (
+                        normalize_ip(exist_ip),
+                        str(exist_rule.get("protocol", "")).lower(),
+                        str(exist_rule.get("port", "")).strip(),
+                        str(exist_rule.get("appid", "")).lower(),
+                        normalize_url(exist_rule.get("url", "")),
+                    )
+                    if req_tuple == exist_tuple:
+                        # Now it's a real per-IP 5-tuple duplicate!
+                        pair = (i, j, req_ip)
+                        if pair in emitted:
+                            continue
+                        emitted.add(pair)
+                        block = []
+                        block.append(f"### Duplicate detected between requested policy rule {i+1} and existing policy rule {j+1}")
+                        block.append("")
+                        block.append(f"#### Requested policy rule {i+1}")
+                        block.append("```yaml")
+                        block.append(highlight_rule(req_rule, ip_direction_key, {req_ip}))
+                        block.append("```")
+                        block.append("")
+                        block.append(f"#### Existing policy rule {j+1}")
+                        block.append("```yaml")
+                        block.append(highlight_rule(exist_rule, ip_direction_key, {exist_ip}))
+                        block.append("```")
+                        result.append("\n".join(block))
     return result
 
 def main():
