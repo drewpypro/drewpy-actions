@@ -76,7 +76,23 @@ runs:
           echo "duplicates_detected=false" >> $GITHUB_OUTPUT
         fi
 
+        # DEBUG SECTION
+        echo "---- DEBUGGING DUPLICATE VALIDATOR ----"
+        echo "dupe_output.txt contents:"
+        cat dupe_output.txt || echo "No dupe_output.txt"
+        echo "Current directory: $(pwd)"
+        ls -l
+        echo "result.txt contents:"
+        cat result.txt || echo "No result.txt"
+        echo "MAPPING: $MAPPING"
+        echo "Request/Existing pairs from mapping:"
+        while IFS=, read -r request_file existing_file; do
+          echo "  - request_file: $request_file"
+          echo "    existing_file: $existing_file"
+        done <<< "$MAPPING"
+        echo "Exit status: $status"
+        echo "---- END DEBUG ----"
+
         # You can set validated_policy_filenames, but for single-file it may be blank or just $request_file
-        # If you want to keep the output for compatibility:
         echo "validated_policy_filenames=$request_file" >> $GITHUB_OUTPUT
         exit $status
