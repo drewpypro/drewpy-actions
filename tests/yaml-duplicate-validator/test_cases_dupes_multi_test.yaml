@@ -1,0 +1,206 @@
+- name: "bad-request-multi-dupes-example1"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-abcde
+      thirdpartyName: test-client
+      thirdPartyID: 123
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips: [10.1.1.1/32, 10.2.2.2/32]
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: api.example.com
+      - request_id: RQ-002
+        source:
+          ips: [10.2.2.2/32, 10.1.1.1/32]
+        protocol: TCP
+        port: '443'
+        appid: SSL
+        url: API.EXAMPLE.COM
+      - request_id: RQ-003
+        source:
+          ips: [10.3.3.3/32, 10.4.4.4/32]
+        protocol: tcp
+        port: 100
+        appid: app100
+        url: foo.example.com
+      - request_id: RQ-004
+        source:
+          ips: [10.3.3.3/32, 10.5.5.5/32]
+        protocol: TCP
+        port: 100
+        appid: APP100
+        url: FOO.EXAMPLE.COM
+      - request_id: RQ-005
+        source:
+          ips: [10.6.6.6/32, 10.6.6.6/32]
+        protocol: tcp
+        port: 200
+        appid: dupip
+        url: bar.example.com
+      - request_id: RQ-006
+        source:
+          ips: [10.7.7.7/32]
+        protocol: udp
+        port: 53
+        appid: dns
+        url: dns.example.com
+      - request_id: RQ-007
+        source:
+          ips: [10.8.8.8/32, 10.9.9.9/32]
+        protocol: tcp
+        port: 300
+        appid: existapp
+        url: exist.example.com
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-abcde
+      thirdpartyName: test-client
+      thirdPartyID: 123
+      region: us-east-1
+    rules:
+      - request_id: EXIST-001
+        source:
+            - 10.8.8.8/32
+            - 10.9.9.9/32
+        protocol: TCP
+        port: '300'
+        appid: EXISTAPP
+        url: EXIST.EXAMPLE.COM
+      - request_id: EXIST-002
+        source:
+          ips:
+            - 10.4.4.4/32
+            - 10.10.10.10/32
+        protocol: tcp
+        port: 100
+        appid: app100
+        url: foo.example.com
+  expected_output: |
+    # ❌ Duplicates detected within requested policy
+
+    ### Duplicate detected between requested policy rule 1 and rule 2
+
+    yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+    >>          - 10.2.2.2/32
+    >>      protocol: tcp
+    >>      port: 443
+    >>      appid: ssl
+    >>      url: api.example.com
+
+        - request_id: RQ-002
+          source:
+            ips:
+    >>          - 10.2.2.2/32
+    >>          - 10.1.1.1/32
+    >>      protocol: tcp
+    >>      port: 443
+    >>      appid: ssl
+    >>      url: api.example.com
+
+    ### Duplicate detected between requested policy rule 3 and rule 4
+
+    yaml
+      - request_id: RQ-003
+        source:
+          ips: 
+    >>      - 10.3.3.3/32
+            - 10.4.4.4/32
+      protocol: tcp
+      port: 100
+      appid: app100
+      url: foo.example.com
+
+      - request_id: RQ-004
+        source:
+          ips: 
+    >>      - 10.3.3.3/32
+            - 10.5.5.5/32
+      protocol: TCP
+      port: 100
+      appid: APP100
+      url: FOO.EXAMPLE.COM
+
+    ### Duplicate detected within requested policy rule 5
+
+    yaml
+      - request_id: RQ-005
+        source:
+          ips: 
+    >>      - 10.6.6.6/32
+    >>      - 10.6.6.6/32
+        protocol: tcp
+        port: 200
+        appid: dupip
+        url: bar.example.com
+
+
+
+    # ❌ Duplicates detected between requested and existing policy
+
+    # Full 5-tuple Rule Duplicates between files
+
+    ### Duplicate detected betweeen requested policy rule 7 and existing policy rule 1
+
+    yaml
+      - request_id: RQ-007
+        source:
+          ips: 
+    >>      - 10.8.8.8/32
+    >>      - 10.9.9.9/32
+    >>  protocol: tcp
+    >>  port: 300
+    >>  appid: existapp
+    >>  url: exist.example.com
+
+
+
+    yaml
+      - request_id: EXIST-001
+        source:
+          ips:
+    >>      - 10.9.9.9/32
+    >>      - 10.8.8.8/32
+    >>  protocol: TCP
+    >>  port: '300'
+    >>  appid: EXISTAPP
+    >>  url: EXIST.EXAMPLE.COM
+
+
+
+    # Per-IP 5-tuple Duplicates Across files
+
+    ### Duplicate detected between requested policy rule 3 and existing policy rule 2
+
+    yaml
+      - request_id: RQ-003
+        source:
+          ips:
+            - 10.3.3.3/32
+    >>      - 10.4.4.4/32
+        protocol: tcp
+        port: 100
+        appid: app100
+        url: foo.example.com
+
+
+
+    yaml
+      - request_id: EXIST-002
+        source:
+          ips:
+    >>      - 10.4.4.4/32
+            - 10.10.10.10/32
+        protocol: tcp
+        port: 100
+        appid: app100
+        url: foo.example.com

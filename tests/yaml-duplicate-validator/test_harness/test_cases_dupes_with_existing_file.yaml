@@ -1,0 +1,521 @@
+- name: "bad-duplicates-with-existing-example1-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-002
+        source:
+          ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-003
+        source:
+          ips:
+            - 10.1.1.1/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+  expected_output: |
+    # ❌ Duplicates detected between requested and existing policy
+
+    ## Full 5-tuple duplicate between requested and existing policy
+
+    ### Duplicate detected between requested policy rule 1 and existing policy rule 2
+
+    #### Requested policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.2/32
+    >>          - 10.12.1.2/32
+    >>          - 10.13.1.2/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+    
+    #### Existing policy rule 2
+    ```yaml
+        - request_id: RQ-002
+          source:
+            ips:
+    >>          - 10.11.1.2/32
+    >>          - 10.12.1.2/32
+    >>          - 10.13.1.2/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+- name: "bad-duplicates-with-existing-example2-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.33.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-002
+        source:
+          ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-003
+        source:
+          ips:
+            - 10.1.1.1/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+  expected_output: |
+    # ❌ Duplicates detected between requested and existing policy
+
+    ## Per-IP 5-tuple duplicates across files
+
+    ### Duplicate detected between requested policy rule 1 and existing policy rule 1
+
+    #### Requested policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.1/32
+                - 10.33.1.1/32
+            protocol: tcp
+            port: 69
+            appid: ssl
+            url: https://api.datadoghq.com
+    ```
+
+    #### Existing policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.1/32
+                - 10.12.1.1/32
+                - 10.13.1.1/32
+            protocol: tcp
+            port: 69
+            appid: ssl
+            url: https://api.datadoghq.com
+    ```
+- name: "bad-duplicates-with-existing-example3-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-002
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com    
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-002
+        source:
+          ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-003
+        source:
+          ips:
+            - 10.1.1.1/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+  expected_output: |
+    # ❌ Duplicates detected between requested and existing policy
+
+    ## Full 5-tuple duplicate between requested and existing policy
+
+    ### Duplicate detected between requested policy rule 1 and existing policy rule 2
+
+    #### Requested policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.2/32
+    >>          - 10.12.1.2/32
+    >>          - 10.13.1.2/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+    #### Existing policy rule 2
+    ```yaml
+        - request_id: RQ-002
+          source:
+            ips:
+    >>          - 10.11.1.2/32
+    >>          - 10.12.1.2/32
+    >>          - 10.13.1.2/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+    ### Duplicate detected between requested policy rule 2 and existing policy rule 1
+
+    #### Requested policy rule 2
+    ```yaml
+        - request_id: RQ-002
+          source:
+            ips:
+    >>          - 10.11.1.1/32
+    >>          - 10.12.1.1/32
+    >>          - 10.13.1.1/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+    #### Existing policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.1/32
+    >>          - 10.12.1.1/32
+    >>          - 10.13.1.1/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+- name: "bad-duplicates-with-existing-example4-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.33.1.1/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.33.1.1/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+  expected_output: |
+    # ❌ Duplicates detected between requested and existing policy
+
+    ## Full 5-tuple duplicate between requested and existing policy
+
+    ### Duplicate detected between requested policy rule 1 and existing policy rule 1
+
+    #### Requested policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.1/32
+    >>          - 10.33.1.1/32
+    >>          - 10.13.1.2/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+    #### Existing policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.11.1.1/32
+    >>          - 10.33.1.1/32
+    >>          - 10.13.1.2/32
+    >>      protocol: tcp
+    >>      port: 69
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+- name: "bad-duplicates-with-existing-example5-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-xxx
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.1.1.1/32
+            - 10.1.1.2/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-002
+        source:
+          ips:
+            - 10.1.1.1/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-002
+        source:
+          ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-003
+        source:
+          ips:
+            - 10.1.1.1/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+  expected_output: |
+    # ❌ Duplicates detected within requested policy
+
+    ## Per-IP 5-tuple duplicate within requested policy
+
+    ### Duplicate detected between requested policy rule 1 and rule 2
+
+    #### Requested policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+                - 10.1.1.2/32
+            protocol: tcp
+            port: 443
+            appid: ssl
+            url: https://api.datadoghq.com
+    ```
+    
+    #### Requested policy rule 2
+    ```yaml
+        - request_id: RQ-002
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+            protocol: tcp
+            port: 443
+            appid: ssl
+            url: https://api.datadoghq.com
+    ```
+
+    # ❌ Duplicates detected between requested and existing policy
+
+    ## Full 5-tuple duplicate between requested and existing policy
+
+    ### Duplicate detected between requested policy rule 2 and existing policy rule 3
+
+    #### Requested policy rule 2
+    ```yaml
+        - request_id: RQ-002
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+    >>      protocol: tcp
+    >>      port: 443
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+    #### Existing policy rule 3
+    ```yaml
+        - request_id: RQ-003
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+    >>      protocol: tcp
+    >>      port: 443
+    >>      appid: ssl
+    >>      url: https://api.datadoghq.com
+    ```
+
+    ## Per-IP 5-tuple duplicates across files
+
+    ### Duplicate detected between requested policy rule 1 and existing policy rule 3
+
+    #### Requested policy rule 1
+    ```yaml
+        - request_id: RQ-001
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+                - 10.1.1.2/32
+            protocol: tcp
+            port: 443
+            appid: ssl
+            url: https://api.datadoghq.com
+    ```
+
+    #### Existing policy rule 3
+    ```yaml
+        - request_id: RQ-003
+          source:
+            ips:
+    >>          - 10.1.1.1/32
+            protocol: tcp
+            port: 443
+            appid: ssl
+            url: https://api.datadoghq.com
+    ```
