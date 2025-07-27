@@ -32,33 +32,51 @@ runs:
         python -m pip install -r ${{github.action_path}}/requirements.txt
       shell: bash
     
-
     - name: Check for duplicates
       id: find_duplicates
       shell: bash
       run: |
         set -e
-        rm -f validated_filenames.txt
+        rm -f dupe_output.txt
+
         status=0
         MAPPING=$(echo "${{ inputs.request_existing_mapping }}" | tr '|' '\n')
         if [[ -z "$MAPPING" ]]; then
           echo "No mapping provided, nothing to validate."
+          echo "pretty_message=💦 No Duplicates detected!" >> $GITHUB_OUTPUT
+          echo "duplicates_detected=false" >> $GITHUB_OUTPUT
+          echo "validated_policy_filenames=" >> $GITHUB_OUTPUT
           exit 0
         fi
 
+        # Loop in case you add multi-file support later
         while IFS=, read -r request_file existing_file; do
           if [[ -n "$existing_file" ]]; then
-            python yaml-duplicate-validator.py "$request_file" "$existing_file"
+            # Capture output and exit code
+            if ! python yaml-duplicate-validator.py "$request_file" "$existing_file" > result.txt 2>&1; then
+              status=1
+              cat result.txt >> dupe_output.txt
+            fi
           else
-            python yaml-duplicate-validator.py "$request_file"
+            if ! python yaml-duplicate-validator.py "$request_file" > result.txt 2>&1; then
+              status=1
+              cat result.txt >> dupe_output.txt
+            fi
           fi
         done <<< "$MAPPING"
 
-        # Space-separated filenames for output
-        outfiles=$(awk '{print $2}' validated_filenames.txt | tr '\n' ' ')
-        echo "pretty_message<<EOF" >> $GITHUB_OUTPUT
-        cat dupe_output.txt >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        echo "duplicates_detected=$([ $status -eq 1 ] && echo true || echo false)" >> $GITHUB_OUTPUT
-        echo "validated_policy_filenames=$outfiles" >> $GITHUB_OUTPUT
+        # Outputs
+        if [[ $status -eq 1 ]]; then
+          echo "pretty_message<<EOF" >> $GITHUB_OUTPUT
+          cat dupe_output.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "duplicates_detected=true" >> $GITHUB_OUTPUT
+        else
+          echo "pretty_message=💦 No Duplicates detected!" >> $GITHUB_OUTPUT
+          echo "duplicates_detected=false" >> $GITHUB_OUTPUT
+        fi
+
+        # You can set validated_policy_filenames, but for single-file it may be blank or just $request_file
+        # If you want to keep the output for compatibility:
+        echo "validated_policy_filenames=$request_file" >> $GITHUB_OUTPUT
         exit $status
