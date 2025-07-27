@@ -3,9 +3,9 @@ name: Duplicate YAML Validator CI
 on:
   pull_request:
     paths:
-      - 'yaml-duplicate-validator/**'
+      - 'yaml-duplicate-validator/yaml-duplicate-validator.py'
+      - 'yaml-duplicate-validator/requirements.txt'
       - 'tests/yaml-duplicate-validator/**'
-      - '.github/workflows/duplicate_validator_test.yml'
 
 jobs:
   test-validator:
