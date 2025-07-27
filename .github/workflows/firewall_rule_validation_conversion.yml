@@ -6,7 +6,6 @@ on:
     paths:
       - 'rule_conversion/*'
       - 'rule_validation/*'
-      - '.github/workflows/firewall_rule_validation_conversion.yml'
 
 jobs:
   validate:
