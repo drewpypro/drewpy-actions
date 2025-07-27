@@ -25,20 +25,21 @@ jobs:
       - name: Get next tag
         id: tag
         run: |
-          # Find the latest v1.0.X tag, or start at v1.0.0
-          last_tag=$(git tag --list 'v1.0.*' --sort=-v:refname | head -n 1)
-          if [[ -z "$last_tag" ]]; then
+          
+          git fetch --tags
+          tags=$(git tag -l 'v1.0.*' | sort -V)
+          if [[ -z "$tags" ]]; then
             next_tag="v1.0.0"
           else
+            last_tag=$(echo "$tags" | tail -n 1)
             major=$(echo "$last_tag" | cut -d. -f1 | tr -d 'v')
             minor=$(echo "$last_tag" | cut -d. -f2)
             patch=$(echo "$last_tag" | cut -d. -f3)
             patch=$((patch+1))
             next_tag="v${major}.${minor}.${patch}"
           fi
-          echo "last_tag=$last_tag"
           echo "next_tag=$next_tag"
-          echo "next_tag=$next_tag" >> $GITHUB_OUTPUT
+          echo "next_tag=$next_tag" >> $GITHU
 
       - name: Create new tag
         run: |
