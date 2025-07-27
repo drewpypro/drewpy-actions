@@ -36,6 +36,7 @@ runs:
       id: find_duplicates
       shell: bash
       run: |
+        set +e
         rm -f dupe_output.txt
         rm -f result.txt
 
@@ -85,4 +86,3 @@ runs:
 
         echo "validated_policy_filenames=$request_file" >> $GITHUB_OUTPUT
         exit 0
-        || true
