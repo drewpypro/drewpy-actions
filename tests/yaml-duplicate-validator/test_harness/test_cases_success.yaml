@@ -1,0 +1,216 @@
+- name: "good-request-example1-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: good-policy1
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: null
+  expected_output: |
+    💦 No Duplicates detected!
+- name: "good-request-example2-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: good-policy2
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 443
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: null
+  expected_output: |
+    💦 No Duplicates detected!
+- name: "good-request-example3-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: good-policy3
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: mongodb
+        url: https://api.datadoghq.com
+  existing: null
+  expected_output: |
+    💦 No Duplicates detected!
+- name: "good-request-example4-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: good-policy4
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: udp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+  existing: null
+  expected_output: |
+    💦 No Duplicates detected!
+- name: "good-request-example5-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: good-policy5
+      thirdPartyID: 12345
+      region: us-east-1
+    rules:
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq.com
+      - request_id: RQ-001
+        source:
+          ips:
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+        protocol: tcp
+        port: 69
+        appid: ssl
+        url: https://api.datadoghq2.com
+  existing: null
+  expected_output: |
+    💦 No Duplicates detected!
+- name: "good-request-with-existing-example1-policy"
+  request: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+      rules:
+        - request_id: RQ-001
+          source:
+            ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+          protocol: tcp
+          port: 777
+          appid: ssl
+          url: https://api.datadoghq.com
+        - request_id: RQ-002
+          source:
+            ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+          protocol: tcp
+          port: 777
+          appid: ssl
+          url: https://api.datadoghq.com
+        - request_id: RQ-003
+          source:
+            ips:
+            - 10.1.1.1/32
+          protocol: tcp
+          port: 443
+          appid: mongodb
+          url: https://api.datadoghq.com
+  existing: |
+    security_group:
+      serviceType: privatelink-consumer
+      serviceName: com.amazonaws.vpce.us-east-1.vpce-svc-064ea718f8d0ead77
+      thirdpartyName: existing-policy
+      thirdPartyID: 12345
+      region: us-east-1
+      rules:
+        - request_id: RQ-001
+          source:
+            ips:
+            - 10.11.1.1/32
+            - 10.12.1.1/32
+            - 10.13.1.1/32
+          protocol: tcp
+          port: 69
+          appid: ssl
+          url: https://api.datadoghq.com
+        - request_id: RQ-002
+          source:
+            ips:
+            - 10.11.1.2/32
+            - 10.12.1.2/32
+            - 10.13.1.2/32
+          protocol: tcp
+          port: 69
+          appid: ssl
+          url: https://api.datadoghq.com
+        - request_id: RQ-003
+          source:
+            ips:
+            - 10.1.1.1/32
+          protocol: tcp
+          port: 443
+          appid: ssl
+          url: https://api.datadoghq.com
+  expected_output: |
+    💦 No Duplicates detected!

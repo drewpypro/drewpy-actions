@@ -4,11 +4,8 @@ inputs:
   created_yaml:
     description: "list of request yaml(s)"
     required: true
-  token:
-    description: 'github pat'
-    required: true
-  repo:
-    description: 'github repository'
+  request_existing_mapping:
+    description: "request/existing policy mapping"
     required: true
 
 outputs:
@@ -30,15 +27,6 @@ runs:
       with:
         clean: false
     
-    - name: Get existing policy files to check against new request yaml
-      shell: bash
-      run: |
-        policies_folder=$(curl -L \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ inputs.token }}" \
-          https://api.github.com/repos/${{ inputs.repo }}/contents/infrastructure/policies)
-        echo "$policies_folder" | jq -r '.[].name' > policies.txt
-
     - name: Install deps
       run: |
         python -m pip install -r ${{github.action_path}}/requirements.txt
@@ -48,25 +36,24 @@ runs:
     - name: Check for duplicates
       id: find_duplicates
       shell: bash
-      env: 
-        token: ${{ inputs.token }}
-        repo: ${{ inputs.repo }}
       run: |
         set -e
         rm -f validated_filenames.txt
         status=0
-        for file in ${{ inputs.created_yaml }}; do
-          # validator must output: <inputfile> <outputfilename> if pass, or exit 1 on fail
-          result=$(python ${{github.action_path}}/yaml-duplicate-validator.py --created_yaml "$file" --token "$token" --repo "$repo")
-          exit_code=$?
-          if [ $exit_code -eq 0 ]; then
-            echo "$result" >> validated_filenames.txt
+        MAPPING=$(echo "${{ inputs.request_existing_mapping }}" | tr '|' '\n')
+        if [[ -z "$MAPPING" ]]; then
+          echo "No mapping provided, nothing to validate."
+          exit 0
+        fi
+
+        while IFS=, read -r request_file existing_file; do
+          if [[ -n "$existing_file" ]]; then
+            python yaml-duplicate-validator.py "$request_file" "$existing_file"
           else
-            cat dupe_output.txt
-            status=1
-            break
+            python yaml-duplicate-validator.py "$request_file"
           fi
-        done
+        done <<< "$MAPPING"
+
         # Space-separated filenames for output
         outfiles=$(awk '{print $2}' validated_filenames.txt | tr '\n' ' ')
         echo "pretty_message<<EOF" >> $GITHUB_OUTPUT
