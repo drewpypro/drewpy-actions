@@ -54,13 +54,11 @@ runs:
             python "${{ github.action_path }}/yaml-duplicate-validator.py" "$request_file" "$existing_file" > result.txt 2>&1
             rc=$?
             if [[ $rc -eq 2 ]]; then
-              # Duplicates found (expected)
               status=2
               cat result.txt >> dupe_output.txt
             elif [[ $rc -ne 0 ]]; then
-              # Actual script error, fail immediately
               cat result.txt >&2
-              exit $rc
+              exit $rc  # <-- This will cause a fail for real errors (exit code 1)
             fi
           else
             python "${{ github.action_path }}/yaml-duplicate-validator.py" "$request_file" > result.txt 2>&1
@@ -75,7 +73,6 @@ runs:
           fi
         done <<< "$MAPPING"
 
-        # Outputs
         if [[ $status -eq 2 ]]; then
           echo "pretty_message<<EOF" >> $GITHUB_OUTPUT
           cat dupe_output.txt >> $GITHUB_OUTPUT
@@ -86,23 +83,6 @@ runs:
           echo "duplicates_detected=false" >> $GITHUB_OUTPUT
         fi
 
-        # DEBUG SECTION
-        echo "---- DEBUGGING DUPLICATE VALIDATOR ----"
-        echo "dupe_output.txt contents:"
-        cat dupe_output.txt || echo "No dupe_output.txt"
-        echo "Current directory: $(pwd)"
-        ls -l
-        echo "result.txt contents:"
-        cat result.txt || echo "No result.txt"
-        echo "MAPPING: $MAPPING"
-        echo "Request/Existing pairs from mapping:"
-        while IFS=, read -r request_file existing_file; do
-          echo "  - request_file: $request_file"
-          echo "    existing_file: $existing_file"
-        done <<< "$MAPPING"
-        echo "Exit status: $status"
-        echo "---- END DEBUG ----"
-
-        # You can set validated_policy_filenames, but for single-file it may be blank or just $request_file
         echo "validated_policy_filenames=$request_file" >> $GITHUB_OUTPUT
         exit 0
+        || true
