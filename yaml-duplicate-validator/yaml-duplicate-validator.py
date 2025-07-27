@@ -172,7 +172,7 @@ def find_per_ip_5tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
 
 def main():
     try:
-        print("DEBUG: yaml-duplicate-validator starting...", file=sys.stderr)
+        # print("DEBUG: yaml-duplicate-validator starting...", file=sys.stderr)
 
         if len(sys.argv) < 2:
             print("Usage: python yaml-duplicate-validator.py <request_file> [existing_file]", file=sys.stderr)
