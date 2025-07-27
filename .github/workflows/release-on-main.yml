@@ -25,7 +25,6 @@ jobs:
       - name: Get next tag
         id: tag
         run: |
-          
           git fetch --tags
           tags=$(git tag -l 'v1.0.*' | sort -V)
           if [[ -z "$tags" ]]; then
@@ -51,3 +50,9 @@ jobs:
           gh release create "${{ steps.tag.outputs.next_tag }}" --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move v1 tag to latest release
+        run: |
+          git fetch --tags
+          git tag -f v1 ${{ steps.tag.outputs.next_tag }}
+          git push origin v1 --force
