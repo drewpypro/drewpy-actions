@@ -173,106 +173,111 @@ def find_per_ip_5tuple_dupes_between(req_rules, exist_rules, ip_direction_key):
     return result
 
 def main():
-    # Print debug info to stderr only
-    print("DEBUG: yaml-duplicate-validator starting...", file=sys.stderr)
+    try:
+        # Print debug info to stderr only
+        print("DEBUG: yaml-duplicate-validator starting...", file=sys.stderr)
 
-    if len(sys.argv) < 2:
-        print("Usage: python yaml-duplicate-validator.py <request_file> [existing_file]", file=sys.stderr)
-        sys.exit(2)
+        if len(sys.argv) < 2:
+            print("Usage: python yaml-duplicate-validator.py <request_file> [existing_file]", file=sys.stderr)
+            sys.exit(2)
 
-    request_file = sys.argv[1]
-    existing_file = sys.argv[2] if len(sys.argv) > 2 else None
+        request_file = sys.argv[1]
+        existing_file = sys.argv[2] if len(sys.argv) > 2 else None
 
-    print(f"DEBUG: request_file={request_file}", file=sys.stderr)
-    if existing_file:
-        print(f"DEBUG: existing_file={existing_file}", file=sys.stderr)
+        print(f"DEBUG: request_file={request_file}", file=sys.stderr)
+        if existing_file:
+            print(f"DEBUG: existing_file={existing_file}", file=sys.stderr)
 
-    if not os.path.isfile(request_file):
-        print(f"ERROR: Cannot find request_file {request_file}", file=sys.stderr)
-        sys.exit(3)
+        if not os.path.isfile(request_file):
+            print(f"ERROR: Cannot find request_file {request_file}", file=sys.stderr)
+            sys.exit(3)
 
-    request_policy = load_yaml_file(request_file)
-    service_type = request_policy.get("security_group", {}).get("serviceType", "")
-    ip_direction_key = "source" if service_type == "privatelink-consumer" else "destination"
-    rules = request_policy.get("rules", [])
+        request_policy = load_yaml_file(request_file)
+        service_type = request_policy.get("security_group", {}).get("serviceType", "")
+        ip_direction_key = "source" if service_type == "privatelink-consumer" else "destination"
+        rules = request_policy.get("rules", [])
 
-    print(f"DEBUG: Loaded {len(rules)} rules from {request_file}", file=sys.stderr)
+        print(f"DEBUG: Loaded {len(rules)} rules from {request_file}", file=sys.stderr)
 
-    # Collect result groups
-    sections_within = {}
-    sections_between = {}
+        # Collect result groups
+        sections_within = {}
+        sections_between = {}
 
-    # These keys must exactly match your spec (and your test cases)
-    key_within_5tuple = "Full 5-tuple rule duplicate within requested policy"
-    key_within_per_ip = "Per-IP 5-tuple duplicate within requested policy"
-    key_within_dupe_ips = "Duplicate IPs within a single rule"
-    key_between_5tuple = "Full 5-tuple duplicate between requested and existing policy"
-    key_between_per_ip = "Per-IP 5-tuple duplicates across files"
+        # These keys must exactly match your spec (and your test cases)
+        key_within_5tuple = "Full 5-tuple rule duplicate within requested policy"
+        key_within_per_ip = "Per-IP 5-tuple duplicate within requested policy"
+        key_within_dupe_ips = "Duplicate IPs within a single rule"
+        key_between_5tuple = "Full 5-tuple duplicate between requested and existing policy"
+        key_between_per_ip = "Per-IP 5-tuple duplicates across files"
 
-    # Within requested policy
-    within_5tuple = find_five_tuple_dupes_within(rules, ip_direction_key)
-    if within_5tuple:
-        sections_within[key_within_5tuple] = within_5tuple
-    within_per_ip = find_per_ip_5tuple_dupes_within(rules, ip_direction_key)
-    if within_per_ip:
-        sections_within[key_within_per_ip] = within_per_ip
-    within_dupe_ips = find_duplicate_ips_within_rule(rules, ip_direction_key)
-    if within_dupe_ips:
-        sections_within[key_within_dupe_ips] = within_dupe_ips
+        # Within requested policy
+        within_5tuple = find_five_tuple_dupes_within(rules, ip_direction_key)
+        if within_5tuple:
+            sections_within[key_within_5tuple] = within_5tuple
+        within_per_ip = find_per_ip_5tuple_dupes_within(rules, ip_direction_key)
+        if within_per_ip:
+            sections_within[key_within_per_ip] = within_per_ip
+        within_dupe_ips = find_duplicate_ips_within_rule(rules, ip_direction_key)
+        if within_dupe_ips:
+            sections_within[key_within_dupe_ips] = within_dupe_ips
 
-    # Between requested and existing policy
-    exist_rules = []
-    if existing_file and os.path.isfile(existing_file):
-        existing_policy = load_yaml_file(existing_file)
-        exist_rules = existing_policy.get("rules", [])
-        between_5tuple = find_five_tuple_dupes_between(rules, exist_rules, ip_direction_key)
-        if between_5tuple:
-            sections_between[key_between_5tuple] = between_5tuple
-        between_per_ip = find_per_ip_5tuple_dupes_between(rules, exist_rules, ip_direction_key)
-        if between_per_ip:
-            sections_between[key_between_per_ip] = between_per_ip
+        # Between requested and existing policy
+        exist_rules = []
+        if existing_file and os.path.isfile(existing_file):
+            existing_policy = load_yaml_file(existing_file)
+            exist_rules = existing_policy.get("rules", [])
+            between_5tuple = find_five_tuple_dupes_between(rules, exist_rules, ip_direction_key)
+            if between_5tuple:
+                sections_between[key_between_5tuple] = between_5tuple
+            between_per_ip = find_per_ip_5tuple_dupes_between(rules, exist_rules, ip_direction_key)
+            if between_per_ip:
+                sections_between[key_between_per_ip] = between_per_ip
 
-    output_lines = []
+        output_lines = []
 
-    # Output within requested policy (match header and order exactly)
-    if sections_within:
-        output_lines.append("# ❌ Duplicates detected within requested policy")
-        for header in [
-            key_within_5tuple,
-            key_within_per_ip,
-            key_within_dupe_ips,
-        ]:
-            if header in sections_within:
-                output_lines.append("")  
-                output_lines.append(f"## {header}")
-                for block in sections_within[header]:
-                    output_lines.append("")
-                    output_lines.append(block)
+        # Output within requested policy (match header and order exactly)
+        if sections_within:
+            output_lines.append("# ❌ Duplicates detected within requested policy")
+            for header in [
+                key_within_5tuple,
+                key_within_per_ip,
+                key_within_dupe_ips,
+            ]:
+                if header in sections_within:
+                    output_lines.append("")  
+                    output_lines.append(f"## {header}")
+                    for block in sections_within[header]:
+                        output_lines.append("")
+                        output_lines.append(block)
 
-    # Output between requested and existing policy
-    if sections_between:
-        # Insert a blank line *if* there's already something in output_lines
-        if output_lines:
-            output_lines.append("")
-        output_lines.append("# ❌ Duplicates detected between requested and existing policy")
-        for header in [
-            key_between_5tuple,
-            key_between_per_ip,
-        ]:
-            if header in sections_between:
+        # Output between requested and existing policy
+        if sections_between:
+            # Insert a blank line *if* there's already something in output_lines
+            if output_lines:
                 output_lines.append("")
-                output_lines.append(f"## {header}")
-                for block in sections_between[header]:
+            output_lines.append("# ❌ Duplicates detected between requested and existing policy")
+            for header in [
+                key_between_5tuple,
+                key_between_per_ip,
+            ]:
+                if header in sections_between:
                     output_lines.append("")
-                    output_lines.append(block)
+                    output_lines.append(f"## {header}")
+                    for block in sections_between[header]:
+                        output_lines.append("")
+                        output_lines.append(block)
 
-    # Join with single newlines between items
-    if output_lines:
-        print("\n".join(output_lines).rstrip())
-        sys.exit(1)
-    else:
-        print("💦 No Duplicates detected!")
-        sys.exit(0)
+        # Join with single newlines between items
+        if output_lines:
+            print("\n".join(output_lines).rstrip())
+            sys.exit(2)
+        else:
+            print("💦 No Duplicates detected!")
+            sys.exit(0)
+    
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)  # All script errors
 
 if __name__ == "__main__":
     main()
