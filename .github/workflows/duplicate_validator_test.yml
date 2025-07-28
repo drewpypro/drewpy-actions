@@ -6,7 +6,8 @@ on:
       - 'yaml-duplicate-validator/yaml-duplicate-validator.py'
       - 'yaml-duplicate-validator/requirements.txt'
       - 'tests/yaml-duplicate-validator/**'
-
+  workflow_dispatch:
+  
 jobs:
   test-validator:
     runs-on: ubuntu-latest
