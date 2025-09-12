@@ -1,5 +1,5 @@
 # Drewpy Actions
-![drewpy-actions](./img/drewpy-actions.png)
+![drewpy-actions](./img/tribird.gif)
 
 # Repo Structure
 ```
