@@ -1,0 +1,44 @@
+name: GitHub Runner IP Tracker
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"  # every 30 min
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/git-runner-ip-scraper/**'
+
+jobs:
+  track-runner-ip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run GitHub Runner IP Scraper
+        run: |
+          python scripts/git-runner-ip-scraper/git_runner_ip_scraper.py \
+            --map-file scripts/git-runner-ip-scraper/git-runner-ip-map.json \
+            --retention-days 30 \
+            --output-dir scripts/git-runner-ip-scraper
+
+      - name: Display Results
+        run: |
+          echo "=== Runner IP Map ==="
+          cat scripts/git-runner-ip-scraper/git-runner-ip-map.json
+          echo ""
+          echo "=== Unique IPs ==="
+          cat scripts/git-runner-ip-scraper/git-runner-ips.json
+          
+      - name: Commit and Push Results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/git-runner-ip-scraper/git-runner-ip-map.json \
+                  scripts/git-runner-ip-scraper/git-runner-ips.json \
+                  scripts/git-runner-ip-scraper/git-runner-ips.auto.tfvars
+          git commit -m "Update GitHub runner IP tracking ($(date -u))" || echo "No changes to commit"
+          git push

@@ -34,6 +34,9 @@ istio-1.24.0
 # to change depending on the environment.
 *.tfvars
 *.tfvars.json
+# Re-include only the tracked IP files
+!scripts/git-runner-ip-scraper/*.tfvars
+!scripts/git-runner-ip-scraper/*.tfvars.json
 *.bkp
 *.dtmp
 *.tmp
