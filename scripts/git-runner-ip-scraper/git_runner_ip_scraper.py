@@ -169,7 +169,7 @@ def save_output(ip_map: Dict[str, str], output_dir: str = ".") -> None:
     print(f"Saved {ips_json_file}", file=sys.stderr)
 
     # Generate github-runner-ips.auto.tfvars
-    tfvars_file = os.path.join(output_dir, "github-runner-ips.auto.tfvars")
+    tfvars_file = os.path.join(output_dir, "git-runner-ips.auto.tfvars")
     with open(tfvars_file, 'w') as f:
         f.write("# GitHub Actions Runner IPs\n")
         f.write("# Auto-generated - do not edit manually\n")
