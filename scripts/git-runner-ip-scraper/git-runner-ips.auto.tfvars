@@ -1,9 +1,10 @@
 # GitHub Actions Runner IPs
 # Auto-generated - do not edit manually
-# Last updated: 2025-11-23 09:34:52 UTC
+# Last updated: 2025-11-23 09:44:20 UTC
 # This file is automatically loaded by Terraform
 
 git_runner_ips = [
+  "135.119.132.152/32",
   "135.119.38.34/32",
   "135.232.201.50/32",
   "145.132.99.20/32",
@@ -42,6 +43,7 @@ git_runner_ips = [
 ]
 
 git_runner_ip_map = {
+  "135.119.132.152" = "2025-11-23"
   "135.119.38.34" = "2025-11-23"
   "135.232.201.50" = "2025-11-23"
   "145.132.99.20" = "2025-11-23"
