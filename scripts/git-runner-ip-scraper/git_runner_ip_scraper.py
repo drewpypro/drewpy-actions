@@ -208,6 +208,14 @@ def generate_output_files(ip_map: Dict[str, str], output_dir: str = ".") -> None
         else:
             f.write("[]\n\n")
 
+        # IP list no cidr variable
+        f.write("git_runner_ips_no_cidr = ")
+        if all_ips:
+            quoted_ips = [f'  "{ip}"' for ip in all_ips]
+            f.write("[\n" + ",\n".join(quoted_ips) + "\n]\n\n")
+        else:
+            f.write("[]\n\n")
+
         # IP map variable (IP -> last_seen_date)
         f.write("git_runner_ip_map = ")
         if ip_map:
