@@ -22,7 +22,7 @@ jobs:
         run: |
           python scripts/git-runner-ip-scraper/git_runner_ip_scraper.py \
             --map-file scripts/git-runner-ip-scraper/git-runner-ip-map.json \
-            --retention-days 30 \
+            --retention-days 2 \
             --output-dir scripts/git-runner-ip-scraper
 
           echo "=== Runner IP Map ==="
