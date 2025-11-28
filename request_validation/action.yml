@@ -1,0 +1,43 @@
+name: 'Request Validation'
+description: 'Validates, sanitizes, and normalizes game name requests from GitHub issues'
+author: 'drewpypro'
+
+inputs:
+  game_name:
+    description: 'The game name to validate'
+    required: true
+
+outputs:
+  result:
+    description: 'Validation result (success, too_long, bad_characters, access_denied, script_error)'
+    value: ${{ steps.validate.outputs.result }}
+  message:
+    description: 'Human-readable message for the validation result'
+    value: ${{ steps.validate.outputs.message }}
+  slug:
+    description: 'Normalized game name slug (only set on success)'
+    value: ${{ steps.validate.outputs.slug }}
+  original_name:
+    description: 'Original game name that was validated'
+    value: ${{ steps.validate.outputs.original_name }}
+  json_path:
+    description: 'Path for the JSON assessment file (only set on success)'
+    value: ${{ steps.validate.outputs.json_path }}
+  md_path:
+    description: 'Path for the Markdown assessment file (only set on success)'
+    value: ${{ steps.validate.outputs.md_path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Run validation
+      id: validate
+      shell: bash
+      run: |
+        python3 "${{ github.action_path }}/request_validation.py" \
+          --game-name "${{ inputs.game_name }}"
