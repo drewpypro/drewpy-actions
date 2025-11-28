@@ -8,21 +8,49 @@
         run: |
           echo "Extracting game name"
           jq -r '.issue.body' "$GITHUB_EVENT_PATH" > /tmp/game_name.txt
+
           echo "DEBUG: validate game_name"
           cat /tmp/game_name.txt
+
+          
+          # Take the last non-empty line as the game name
+          GAME_NAME=$(grep -v '^[[:space:]]*$' /tmp/game_name.txt | tail -n1)
+          echo "DEBUG: extracted GAME_NAME='$GAME_NAME'"
+
+          echo "DEBUG: Pre GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
           echo "DEBUG: Load github output"
-          echo "game_name=$(cat /tmp/game_name.txt)" >> $GITHUB_OUTPUT
-          echo "DEBUG: Test github outputs"
-          echo $GITHUB_OUTPUT
+          echo "game_name=$GAME_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "DEBUG: PostTest"
+          cat "$GITHUB_OUTPUT"
 
       - name: Validate Request
-        uses: drewpypro/drewpy-actions/request_validation@v1
+        uses: drewpypro/drewpy-actions/request_validation@gamesv1
         id: request_validation
         with:
-          game_name: ${{ steps.pre_process_validation.outputs.game_name }}
+          game_name: ${{ pre_process_validation.outputs.game_name }}
+
 ```
+- **workflow example output**
+```sh
+0s
+Run echo "Extracting game name"
+Extracting game name
+DEBUG: validate game_name
+### Game Name
+
+humans too
+DEBUG: extracted GAME_NAME='humans too'
+DEBUG: Pre GITHUB_OUTPUT
+DEBUG: Load github output
+DEBUG: PostTest
+game_name=humans too
+```
+
 - **drewpy-actions/request_validation.py**
-    - Accepts --input-file to receive $game_name variable
+    - Accepts --input-file or --game-name to receive $game_name variable
     - takes issue request input and performs linting, validation, sanitization and rejection. 
         - if character count is over 69, then reject the request. **too long**
         - if non-standard unicode character is present, request the request right away and return back to user. **bad characters**
@@ -45,6 +73,10 @@
             - output message is emitted back to issue/user. 
         - **access denied** - create a list of games and refuse assessment, or if a game pattern matches something nsfw for example.
             - Output Message: I refuse to assess this game, it sucks. 
-        - If successful, generates json and md file to $GITHUB_OUTPUT.
+        - If successful, generates empty json and md file to $GITHUB_OUTPUT.
             - $repo/json/$slug-assessment.json
             - $repo/docs/$slug-assessment.md
+
+- **workflow output (next step)**
+```yaml
+
