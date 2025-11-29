@@ -150,6 +150,8 @@ def get_slug_from_data(data: dict) -> str:
 
 def make_default_json_path(game_name: str) -> Path:
     """Generate default JSON output path based on game name."""
+    json_dir = WORKSPACE_ROOT / "json"
+    json_dir.mkdir(parents=True, exist_ok=True)
     slug = (
         game_name.strip()
         .lower()
@@ -157,9 +159,7 @@ def make_default_json_path(game_name: str) -> Path:
         .replace("/", "_")
         .replace("\\", "_")
     )
-    out_dir = WORKSPACE_ROOT / "outputs"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    return out_dir / f"{slug}_assessment.json"
+    return json_dir / f"{slug}.json"
 
 
 def generate_assessment_json(game_name: str, steam_appid: str | None = None) -> dict:
@@ -237,11 +237,13 @@ def generate_markdown_from_json(json_data: dict, output_path: Path | None = None
     template_dir = ACTION_ROOT / "templates"
     template_name = "game_assessment.md.j2"
     docs_dir = WORKSPACE_ROOT / "docs"
+    json_dir = WORKSPACE_ROOT / "json"
 
     if not template_dir.exists():
         raise FileNotFoundError(f"Template directory does not exist: {template_dir}")
 
     docs_dir.mkdir(parents=True, exist_ok=True)
+    json_dir.mkdir(parents=True, exist_ok=True)
 
     env = Environment(
         loader=FileSystemLoader(str(template_dir)),
