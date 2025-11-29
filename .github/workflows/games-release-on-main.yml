@@ -1,0 +1,58 @@
+name: Create Release On Main
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'call-assessment_api/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get next tag
+        id: tag
+        run: |
+          git fetch --tags
+          tags=$(git tag -l 'gamesv1.0.*' | sort -V)
+          if [[ -z "$tags" ]]; then
+            next_tag="v1.0.0"
+          else
+            last_tag=$(echo "$tags" | tail -n 1)
+            major=$(echo "$last_tag" | cut -d. -f1 | tr -d 'v')
+            minor=$(echo "$last_tag" | cut -d. -f2)
+            patch=$(echo "$last_tag" | cut -d. -f3)
+            patch=$((patch+1))
+            next_tag="v${major}.${minor}.${patch}"
+          fi
+          echo "next_tag=$next_tag"
+          echo "next_tag=$next_tag" >> $GITHUB_OUTPUT
+
+      - name: Create new tag
+        run: |
+          git tag ${{ steps.tag.outputs.next_tag }}
+          git push origin ${{ steps.tag.outputs.next_tag }}
+
+      - name: Create GitHub release
+        run: |
+          gh release create "${{ steps.tag.outputs.next_tag }}" --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move v1 tag to latest release
+        run: |
+          git fetch --tags
+          git tag -f gamesv1 ${{ steps.tag.outputs.next_tag }}
+          git push origin gamesv1 --force

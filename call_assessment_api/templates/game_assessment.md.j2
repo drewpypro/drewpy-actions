@@ -1,0 +1,65 @@
+---
+layout: default
+title: {{ target.game_name }} – Third-Party Security Assessment
+---
+
+# Assessment: {{ target.game_name }}
+
+**Type:** Game  
+**Date:** {{ target.timestamp_utc }}  
+**Overall Score:** {{ scoring.overall_score }}/5  
+
+---
+
+## Key Summary
+
+{{ scoring.overall_summary }}
+
+---
+
+## Dimensions
+
+### Identity & Ownership (Score: {{ scoring.identity_score }}/5)
+
+{{ results.identity.summary }}
+
+**Developer:** {{ results.identity.developer }}  
+**Publisher:** {{ results.identity.publisher }}  
+**Country:** {{ results.identity.country }}
+
+---
+
+### Anti-Cheat & Client Risk (Score: {{ scoring.anti_cheat_score }}/5)
+
+{{ results.anti_cheat.summary }}
+
+**Anti-cheat type:** {{ results.anti_cheat.type }}  
+**Classification:** {{ results.anti_cheat.classification }}
+
+---
+
+### Community Sentiment (Score: {{ scoring.community_score }}/5)
+
+Steam label: **{{ results.community_sentiment.steam_label }}**  
+Positive review %: **{{ results.community_sentiment.steam_percentage }}**
+
+{{ results.community_sentiment.summary }}
+
+---
+
+## Sources
+
+**Identity:**  
+{% for url in results.identity.sources %}
+- {{ url }}
+{% endfor %}
+
+**Anti-Cheat:**  
+{% for url in results.anti_cheat.sources %}
+- {{ url }}
+{% endfor %}
+
+**Community Sentiment:**  
+{% for url in results.community_sentiment.sources %}
+- {{ url }}
+{% endfor %}

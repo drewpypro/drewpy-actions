@@ -1,0 +1,80 @@
+---
+layout: default
+title: Helldivers 2 – Third-Party Security Assessment
+---
+
+# Assessment: Helldivers 2
+
+**Type:** Game  
+**Date:** 2025-11-29T00:00:00Z  
+**Overall Score:** 87/5  
+
+---
+
+## Key Summary
+
+Helldivers 2 is a high‑profile cooperative third‑person shooter developed by Swedish studio Arrowhead Game Studios and published by Sony under its Sony Interactive Entertainment and PlayStation Publishing labels, giving it strong, well‑established backing and clear ownership. The game does not appear to use any branded kernel‑level or highly invasive anti‑cheat, instead relying on standard platform DRM and server‑side controls typical for an online co‑op title, which places it in the standard, non‑invasive category, though exact technical details are not fully disclosed. Community sentiment on Steam is broadly very positive, with a high overall positive review percentage and an active player base that lauds its intense, teamwork‑oriented gameplay and evolving live‑service content, even as performance issues and past account‑linking controversies have caused temporary dips in review scores. Overall, the title scores strongly across identity and community dimensions, with a moderate, acceptable risk profile on anti‑cheat/DRM.
+
+---
+
+## Dimensions
+
+### Identity & Ownership (Score: 95/5)
+
+Helldivers 2 is developed by Arrowhead Game Studios, a Swedish studio best known for cooperative action titles, and published globally by Sony under its Sony Interactive Entertainment label, with the PC Steam release specifically listing PlayStation Publishing LLC as publisher. Arrowhead has an established track record dating back to the original Helldivers and Magicka, while Sony’s involvement signals a major first‑party investment with ongoing live‑service support, frequent content updates, and cross‑platform presence on PlayStation, PC, and Xbox. Overall, both developer and publisher appear reputable, experienced, and aligned with expectations for a large, online co‑op shooter.
+
+**Developer:** Arrowhead Game Studios  
+**Publisher:** Sony Interactive Entertainment (console) / PlayStation Publishing LLC (Steam PC)  
+**Country:** Sweden
+
+---
+
+### Anti-Cheat & Client Risk (Score: 75/5)
+
+Public documentation for Helldivers 2 does not indicate the use of a named third‑party anti‑cheat solution such as Easy Anti‑Cheat, BattlEye, or kernel‑level drivers, and PCGamingWiki and the Steam store page list only the usual platform DRM (Steam, PlayStation, Xbox) and a PlayStation Network account requirement for online play. There is no evidence of kernel‑level or highly invasive anti‑cheat components; instead, the game appears to rely on standard platform‑level protections and server‑side checks typical for a co‑op PvE title. As a result, its anti‑cheat/DRM profile is best characterized as standard rather than invasive, though details of any proprietary server‑side measures are not publicly documented.
+
+**Anti-cheat type:** none (no dedicated anti-cheat; standard Steam / platform DRM only)  
+**Classification:** standard
+
+---
+
+### Community Sentiment (Score: 90/5)
+
+Steam label: **Very Positive**  
+Positive review %: **82%**
+
+On Steam, Helldivers 2 currently holds a "Very Positive" overall user review label, with approximately 82% of roughly 600,000+ user reviews marked positive, and recent reviews also trending "Very Positive" at around 80%. Players consistently praise its chaotic, teamwork‑driven co‑op gameplay, satisfying gunplay, and the evolving Galactic War metagame, while common criticisms focus on performance issues, occasional server instability, and past controversies around account linking and regional availability that temporarily pushed reviews down to Mixed during backlash periods. Despite these fluctuations, long‑term sentiment remains strongly favorable, reflecting a large, engaged community that generally views the game as one of the standout co‑op shooters of its generation.
+
+---
+
+## Sources
+
+**Identity:**  
+
+- https://store.steampowered.com/app/553850/HELLDIVERS_2/
+
+- https://en.wikipedia.org/wiki/Helldivers_2
+
+- https://www.playstation.com/en-us/games/helldivers-2/
+
+- https://www.arrowheadgamestudios.com/games/helldivers-2/
+
+
+**Anti-Cheat:**  
+
+- https://store.steampowered.com/app/553850/HELLDIVERS_2/
+
+- https://www.pcgamingwiki.com/wiki/Helldivers_2
+
+- https://www.playstation.com/en-us/games/helldivers-2/
+
+
+**Community Sentiment:**  
+
+- https://store.steampowered.com/app/553850/HELLDIVERS_2/
+
+- https://steamdb.info/app/553850/
+
+- https://www.thegamer.com/helldivers-2-steam-reviews-mixed-performance-problems/
+
+- https://www.pcgamesn.com/helldivers-2/steam-delisting

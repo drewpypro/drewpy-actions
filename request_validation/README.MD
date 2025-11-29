@@ -86,14 +86,14 @@ game_name=humans too
           GIT_AUTHOR_EMAIL: github-actions@github.com
           GIT_COMMITTER_NAME: github-actions
           GIT_COMMITTER_EMAIL: github-actions@github.com
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
           GAME_NAME: ${{ steps.pre_process_validation.outputs.game_name }}
         run: |
           echo "Generating PR for approval if necessary"
           AUTHOR=$(jq -r '.issue.user.login' "$GITHUB_EVENT_PATH")
           ISSUE_ID=${{ github.event.issue.number }}
           BRANCH="issue-${ISSUE_ID}"          
-
+ 
           if [ "$AUTHOR" = "drewpypro" ]; then
             echo "✅ Auto-approving" > /tmp/issue_comment.txt
             gh label create "drewpypro" --color DAE8FC --description "🍆"
