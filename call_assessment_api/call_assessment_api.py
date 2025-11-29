@@ -158,7 +158,17 @@ def make_default_json_path(game_name: str) -> Path:
         .replace(" ", "_")
         .replace("/", "_")
         .replace("\\", "_")
+        .replace(":", "_")
+        .replace("'", "")
+        .replace("!", "")
+        .replace("?", "")
+        .replace(",", "")
+        .replace("&", "_and_")
     )
+    # Collapse multiple underscores
+    while "__" in slug:
+        slug = slug.replace("__", "_")
+    slug = slug.strip("_")
     return json_dir / f"{slug}.json"
 
 
