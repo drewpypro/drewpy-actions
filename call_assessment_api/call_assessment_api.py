@@ -302,7 +302,10 @@ def main() -> int:
 
     try:
         # Get game_name from argument or environment variable
-        game_name = args.game_name or os.environ.get('INPUT_GAME_NAME', '').strip()
+        if args.game_name:
+            game_name = args.game_name
+        else:
+            game_name = os.environ.get('INPUT_GAME_NAME', '').strip()
 
         # Validate arguments
         if args.json_only is None and not game_name:

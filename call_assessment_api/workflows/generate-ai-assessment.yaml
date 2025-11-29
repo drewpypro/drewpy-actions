@@ -1,0 +1,165 @@
+name: Generate AI Assessment Workflow
+
+on:
+  issues:
+    types: [opened, edited]  # Issue form submission
+  pull_request_review:
+    types: [submitted]       # PR approved
+  pull_request:
+    types: [closed]          # Merged (for docs sync, if you want)
+
+
+jobs:
+  validate:
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      game_name: ${{ steps.pre_process_validation.outputs.game_name }}
+      validation_result: ${{ steps.request_validation.outputs.result }}
+      validation_message: ${{ steps.request_validation.outputs.message }}
+      slug: ${{ steps.request_validation.outputs.slug }}
+      json_path: ${{ steps.request_validation.outputs.json_path }}
+      md_path: ${{ steps.request_validation.outputs.md_path }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Pre Processing
+        id: pre_process_validation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Extracting game name"
+          jq -r '.issue.body' "$GITHUB_EVENT_PATH" > /tmp/game_name.txt
+
+          echo "DEBUG: validate game_name"
+          cat /tmp/game_name.txt
+
+          
+          # Take the last non-empty line as the game name
+          GAME_NAME=$(grep -v '^[[:space:]]*$' /tmp/game_name.txt | tail -n1)
+          echo "DEBUG: extracted GAME_NAME='$GAME_NAME'"
+
+          echo "DEBUG: Pre GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+          echo "DEBUG: Load github output"
+          echo "game_name=$GAME_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "DEBUG: PostTest"
+          cat "$GITHUB_OUTPUT"
+
+      - name: Validate Request
+        uses: drewpypro/drewpy-actions/request_validation@gamesv1
+        id: request_validation
+        with:
+          game_name: ${{ steps.pre_process_validation.outputs.game_name }}
+
+  generate_assessment:
+    runs-on: ubuntu-latest
+    environment: game-assessment-approval
+    permissions:
+      contents: write
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }} 
+
+      - name: Generate AI assessment
+        id: generate_assessment
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        uses: drewpypro/drewpy-actions/call_assessment_api@gamesv1
+        with:
+          game_name: ${{ needs.validate.outputs.game_name }}
+
+      - name: Generate Approval PR
+        id: pr_approval
+        env:
+          GIT_AUTHOR_NAME: github-actions
+          GIT_AUTHOR_EMAIL: github-actions@github.com
+          GIT_COMMITTER_NAME: github-actions
+          GIT_COMMITTER_EMAIL: github-actions@github.com
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_ACTIONS }}
+          GAME_NAME: ${{ needs.validate.outputs.game_name }}
+        run: |
+          echo "Generating PR for approval if necessary"
+          AUTHOR=$(jq -r '.issue.user.login' "$GITHUB_EVENT_PATH")
+          ISSUE_ID=${{ github.event.issue.number }}
+          BRANCH="issue-${ISSUE_ID}"
+
+          echo "Preparing pre-approval files"
+          JSON_PATH="${{ needs.validate.outputs.json_path }}"
+          MD_PATH="${{ needs.validate.outputs.md_path }}"
+
+          # Make sure directories exist
+          mkdir -p "$(dirname "$JSON_PATH")" "$(dirname "$MD_PATH")"
+
+          if [ "$AUTHOR" = "drewpypro123" ]; then
+            echo "✅ Auto-approving" > /tmp/issue_comment.txt
+            gh label create "drewpypro123" --color DAE8FC --description "🍆" || true
+            gh issue edit "$ISSUE_ID" --add-label "drewpypro"      
+          else
+
+            # Check if branch already exists
+            if git ls-remote --heads origin | grep -q "refs/heads/$BRANCH"; then
+              # Branch exists, create a unique branch name
+              BRANCH="issue-${ISSUE_ID}-$(date +%s)"
+            fi
+
+            # Create and switch to the branch
+            git checkout -b "$BRANCH"
+
+            git add "${{ needs.validate.outputs.md_path }}"
+            git add "${{ needs.validate.outputs.json_path }}"
+
+            # Commit only if there are changes
+            if ! git diff --staged --quiet; then
+              git commit -m "Add ${GAME_NAME} from issue #${ISSUE_ID}"
+              git push -f origin "$BRANCH"
+
+              PR_URL=$(gh pr create \
+                --title "[Auto] Review game assessment request submitted through #${ISSUE_ID}" \
+                --body "This PR generates a request to review #${ISSUE_ID} for ${GAME_NAME} by ${AUTHOR}." \
+                --head "$BRANCH" \
+                --base main)
+
+              echo "A PR has been submitted for review, please wait for approval" > /tmp/issue_comment.txt
+              gh issue comment $ISSUE_ID --body-file /tmp/issue_comment.txt
+              gh label create "pending-approval" --color FBCA04 --description "awaiting approval" || true
+              gh issue edit "$ISSUE_ID" --add-label "pending-approval"
+              gh issue edit "$ISSUE_ID" --title "[Games] Assessment for: ${GAME_NAME}"
+            fi
+          fi
+
+  
+  # sync_docs_on_merge:
+  #   if: github.event_name == 'pull_request' &&
+  #       github.event.action == 'closed' &&
+  #       github.event.pull_request.merged == true
+  #   permissions:
+  #     contents: write
+  #     steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{ github.head_ref }} 
+
+  #     - name: Generate Docs Update
+  #       env:
+  #         DOCS_REPO_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
+  #       run: |
+  #         echo "Prepare files for drewpypro.github.io github-pages"
+  #         npm, yarn???
