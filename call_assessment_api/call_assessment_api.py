@@ -75,8 +75,13 @@ def set_github_output(name: str, value: str) -> None:
         print(f"::set-output name={name}::{value}")
 
 
-# Resolve repo root (directory containing this script)
-REPO_ROOT = Path(os.environ.get('GITHUB_WORKSPACE') or Path(__file__).resolve().parent)
+# Resolve action root (directory containing this script)
+# This should always be the action's directory for bundled files (instructions, schema, templates)
+ACTION_ROOT = Path(__file__).resolve().parent
+
+# Resolve workspace root for output files (docs, json)
+# In GitHub Actions, this is GITHUB_WORKSPACE; locally, fallback to action root
+WORKSPACE_ROOT = Path(os.environ.get('GITHUB_WORKSPACE') or ACTION_ROOT)
 
 
 def slugify(text: str) -> str:
@@ -92,7 +97,7 @@ def slugify(text: str) -> str:
 
 def load_schema() -> str:
     """Load the JSON schema for game assessments."""
-    schema_path = REPO_ROOT / "schema" / "game_assessment_v1.json"
+    schema_path = ACTION_ROOT / "schema" / "game_assessment_v1.json"
     if not schema_path.exists():
         raise FileNotFoundError(f"Missing schema file: {schema_path}")
     return schema_path.read_text(encoding="utf-8")
@@ -103,7 +108,7 @@ def load_instructions() -> str:
     Concatenate the instruction markdown files into a single prompt string.
     Adjust file_order if you add/remove instruction files.
     """
-    instructions_dir = REPO_ROOT / "instructions"
+    instructions_dir = ACTION_ROOT / "instructions"
 
     file_order = [
         "game_researcher_v1.md",  # top-level instructions
@@ -152,7 +157,7 @@ def make_default_json_path(game_name: str) -> Path:
         .replace("/", "_")
         .replace("\\", "_")
     )
-    out_dir = REPO_ROOT / "examples" / "outputs"
+    out_dir = WORKSPACE_ROOT / "examples" / "outputs"
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir / f"{slug}_assessment_v1.json"
 
@@ -229,9 +234,9 @@ def generate_markdown_from_json(json_data: dict, output_path: Path | None = None
     Returns:
         Path to the generated markdown file
     """
-    template_dir = REPO_ROOT / "templates"
+    template_dir = ACTION_ROOT / "templates"
     template_name = "game_assessment.md.j2"
-    docs_dir = REPO_ROOT / "docs"
+    docs_dir = WORKSPACE_ROOT / "docs"
 
     if not template_dir.exists():
         raise FileNotFoundError(f"Template directory does not exist: {template_dir}")
