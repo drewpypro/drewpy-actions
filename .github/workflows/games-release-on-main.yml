@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'call_assessment_api/**'
+      - '.github/workflows/games-release-on-main.yaml'
 
 jobs:
   release:
@@ -35,7 +36,7 @@ jobs:
             minor=$(echo "$last_tag" | cut -d. -f2)
             patch=$(echo "$last_tag" | cut -d. -f3)
             patch=$((patch+1))
-            next_tag="gamesv${major}.${minor}.${patch}"
+            next_tag="${major}.${minor}.${patch}"
           fi
           echo "next_tag=$next_tag"
           echo "next_tag=$next_tag" >> $GITHUB_OUTPUT
