@@ -1,4 +1,4 @@
-name: Create Release On Main
+name: Games Create Release On Main
 
 on:
   push:

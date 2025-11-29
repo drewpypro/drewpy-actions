@@ -47,3 +47,4 @@ runs:
       run: |
         python3 "${{ github.action_path }}/call_assessment_api.py" \
           --game-name "${{ inputs.game_name }}"
+
