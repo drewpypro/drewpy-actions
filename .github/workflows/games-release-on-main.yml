@@ -40,6 +40,7 @@ jobs:
           echo "next_tag=$next_tag"
           echo "next_tag=$next_tag" >> $GITHUB_OUTPUT
 
+
       - name: Create new tag
         run: |
           git tag ${{ steps.tag.outputs.next_tag }}
