@@ -157,9 +157,9 @@ def make_default_json_path(game_name: str) -> Path:
         .replace("/", "_")
         .replace("\\", "_")
     )
-    out_dir = WORKSPACE_ROOT / "examples" / "outputs"
+    out_dir = WORKSPACE_ROOT / "outputs"
     out_dir.mkdir(parents=True, exist_ok=True)
-    return out_dir / f"{slug}_assessment_v1.json"
+    return out_dir / f"{slug}_assessment.json"
 
 
 def generate_assessment_json(game_name: str, steam_appid: str | None = None) -> dict:
