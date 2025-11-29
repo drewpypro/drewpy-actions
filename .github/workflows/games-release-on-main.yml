@@ -56,3 +56,4 @@ jobs:
           git fetch --tags
           git tag -f gamesv1 ${{ steps.tag.outputs.next_tag }}
           git push origin gamesv1 --force
+
