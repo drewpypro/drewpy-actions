@@ -76,7 +76,7 @@ def set_github_output(name: str, value: str) -> None:
 
 
 # Resolve repo root (directory containing this script)
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(os.environ.get('GITHUB_WORKSPACE') or Path(__file__).resolve().parent)
 
 
 def slugify(text: str) -> str:
