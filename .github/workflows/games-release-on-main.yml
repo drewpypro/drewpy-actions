@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'call_assessment_api/**'
+      - '.github/workflows/games-release-on-main.yml'
 
 jobs:
   release:
