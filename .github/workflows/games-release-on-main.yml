@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'call-assessment_api/**'
+      - 'call_assessment_api/**'
 
 jobs:
   release:
