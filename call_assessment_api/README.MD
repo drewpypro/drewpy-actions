@@ -1,5 +1,6 @@
-# request validation
-- **Workflow trigger**
+# call asseessment git actions workflow
+## request validation (Previous Step)
+- **workflow trigger**
 ```yaml
       - name: Validate Request
         uses: drewpypro/drewpy-actions/request_validation@gamesv1
@@ -26,19 +27,32 @@ Run python3 "/home/runner/work/_actions/drewpypro/drewpy-actions/gamesv1/request
    Original: curtain fun
    Slug: curtain-fun
 ```
-- [request_validation@gamesv1](../reeuest_validation/request_validation.py)
+## call assessment api workflow
+  * where assessment instructions, context and persona are stored. 
+  * generates game assessment json db. 
+  * docs are built from output json using jinja template.
+  * PR is generated for review.
 
-- **drewpy-actions/call_assessment_api.py**
-    - where assessment instructions, context and persona are stored. 
-    - generates game assessment json db. 
-    - takes input $game_name-assessment.json file and generates markdown report based on template. 
-- **assessment workflow**
-    * runs composite action from drewpy-actions/call_assessment_api.py to trigger researcher response and generate /assessments/$game_name-assessment.json and /assessments/$game_name-assessment.md files and outputs them to $GITHUB_OUTPUT
-    * docs are built using jinja template. 
+## post call assessment workflow
+- **docs-sync workflow**
+    * pushes assessment files to drewpypro docs repo which auto-generates new page.
 
+## **drewpy-actions/call_assessment_api.py**
+### high-level
+- This script takes an input to AI generate an assessment for a video game based on pre-built instructions and output schema.
+- A JSON DB is returned from the AI endpoint and translated to markdown using a jinja template.
 
-- **workflow output (next step-workinprogress)**
-```md
-- **drewpy-actions/doc_generator.py**
-    - receives input pushed to staging branch and generates required npm and yarn commands required to build the site and deploy the docs on drewpypro.github.io through the gh-pages branch. 
-```
+## Script Logic
+- Defines classes for results and output used by the pipeline and various script steeps. 
+- Defines error messages as variables provided as output to return back to the users git issue. 
+- **set_github_output** - sets the $GITHUB_OUTPUT variable to write the resulting files. 
+  - Sets the github-action-runners root path or $GITHUB_WORKSPACE path to the runner root or if available the $GITHUB_WORKSPACE variable.
+- **slugify** - takes user input and converts to script friendly format used for creating files and other tasks. 
+- **load_schema** - set the schema requirements that is provided to the AI model as an input. 
+- **load_instructions** - load all instruction files in order to be provided as input to the AI model. 
+- **get_slug_from_data** - loads slug from **slugify** else fallback to assessment which is used to determine the markdown filename. 
+  - In future use of "target" will set the domain if the script needs to support multiple domains (games, finances, etc. )
+- **make_default_json_path** - generates the output path based on the provided game name and replaces characters as necessary. 
+- **generate_assessment_json** - loads instructions, schema and builds payload to call gpt-5.1 using OpenAI responses API. 
+- **generate_markdown_from_json** - generates the markdown from the output assessment JSON using Jinja2 template. 
+- **main** - sets arguments for script operation.
